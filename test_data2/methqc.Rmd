@@ -1,0 +1,80 @@
+---
+title: "methylation quality control"
+author: "Aaron Kovacs"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+theme: cosmo
+---
+
+This code is available at 
+
+## Introduction
+
+In this script we are analysing fragment insert sizes and look at average methylation in these test samples
+
+Here we are going to create a violin chart
+
+```{r, violin}
+
+library(vioplot)
+
+myfilelist <- list.files(".",pattern="dist.txt")
+
+myread <- function(myfile){
+  x <- as.numeric(readLines(myfile))
+  x <- x[which(x<2000)]
+  x <- x[which(x>0)]
+  x
+}
+
+x <- lapply(myfilelist,myread)
+
+names(x) <- myfilelist
+
+par(mar=c(5,10,4,2))
+vioplot(x,horizontal=TRUE,side="right",las=1)
+
+```
+
+Here we are making barcharts of methylation across different contigs
+
+```{r, methaverage}
+
+myfilelist <- list.files(".",pattern="vcf_meth_average.tsv")
+samplelist <- gsub(".bam.vcf_meth_average.tsv","",myfilelist)
+
+myread2 <- function(myfile){
+  read.table(myfile,header=TRUE)
+}
+
+y <- lapply(myfilelist,myread2)
+
+addgene <- as.numeric(gsub("%","",sapply(y,function(x) {x[1,4]})))
+lamda <- as.numeric(gsub("%","",sapply(y,function(x) {x[2,4]})))
+myrow<-which(y[[1]]$chrm=="LG1")
+chr1 <- as.numeric(gsub("%","",sapply(y,function(x) {x[which(x$chrm=="LG1"),4]})))
+
+par(mar=c(5,15,4,2))
+barplot(addgene,xlim=c(95,100),names.arg=samplelist,
+  horiz=TRUE,las=1,main="Control vector",
+  xlab="percent methylation")
+
+barplot(lamda,xlim=c(0,2),names.arg=samplelist,
+  horiz=TRUE,las=1,main="Lambda phage",
+  xlab="percent methylation")
+
+barplot(chr1,xlim=c(60,80),names.arg=samplelist,
+  horiz=TRUE,las=1,main="chr1",
+  xlab="percent methylation")
+
+```
+
+## Session information
+
+For reproducibility.
+
+```{r,sessioninfo}
+sessionInfo()
+```

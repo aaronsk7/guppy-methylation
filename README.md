@@ -1,5 +1,6 @@
 # guppy-methylation
 This repository contains scripts to perform epigenetic analysis of guppies propogated in different light conditions
+We will use EMseq to perform the methylation sequencing followed by analysis using biscuit and methyl kit.
 
 ## Test_data2
 This folder contains code for the data from a trial run of samples and controls to test the acurracy of the enzymatic methyl kit NEBNext 

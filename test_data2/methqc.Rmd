@@ -8,19 +8,20 @@ output:
 theme: cosmo
 ---
 
-This code is available at 
+This code is available at https://github.com/aaronsk7/guppy-methylation
 
 ## Introduction
 
-In this script we are analysing fragment insert sizes and look at average methylation in these test samples
+In this script we are analysing fragment insert sizes and looking at average methylation in these test samples
 
-Here we are going to create a violin chart
+Here we are create a violin chart
 
-```{r, violin}
+```{r, violin,fig.height=8,fig.width=8}
+getwd()
 
 library(vioplot)
 
-myfilelist <- list.files(".",pattern="dist.txt")
+myfilelist <- list.files("insertlen", full.names = TRUE, pattern = "insertlen.txt")
 
 myread <- function(myfile){
   x <- as.numeric(readLines(myfile))
@@ -30,19 +31,21 @@ myread <- function(myfile){
 }
 
 x <- lapply(myfilelist,myread)
-
-names(x) <- myfilelist
-
-par(mar=c(5,10,4,2))
-vioplot(x,horizontal=TRUE,side="right",las=1)
+mysamplenames <- sapply(strsplit(myfilelist,"/"),"[[",2)
+mysamplenames <- sapply(strsplit(mysamplenames,"\\."),"[[",1)
+mysamplenames
+names(x) <- mysamplenames
+str(x)
+par(mar=c(5,5,4,2))
+vioplot(x,main = "Insert length (bp)" , horizontal=TRUE,  side="right" , las=1 , ylim=c(0,1000))
 
 ```
 
-Here we are making barcharts of methylation across different contigs
+Here we are making bar charts of methylation across different contigs
 
-```{r, methaverage}
+```{r, methaverage,fig.height=8,fig.width=8}
 
-myfilelist <- list.files(".",pattern="vcf_meth_average.tsv")
+myfilelist <- list.files("dist",pattern="vcf_meth_average.tsv", full.names = TRUE)
 samplelist <- gsub(".bam.vcf_meth_average.tsv","",myfilelist)
 
 myread2 <- function(myfile){
@@ -50,6 +53,7 @@ myread2 <- function(myfile){
 }
 
 y <- lapply(myfilelist,myread2)
+
 
 addgene <- as.numeric(gsub("%","",sapply(y,function(x) {x[1,4]})))
 lamda <- as.numeric(gsub("%","",sapply(y,function(x) {x[2,4]})))
@@ -71,7 +75,389 @@ barplot(chr1,xlim=c(60,80),names.arg=samplelist,
 
 ```
 
+## Import datasets
+
+```{r,importqc}
+getwd()
+samtools.flagstat.dp <- read.delim("samtools-flagstat-dp.tsv", stringsAsFactors = FALSE)
+str(samtools.flagstat.dp)
+fastqcounts <- read.delim("fastqc_sequence_counts_plot (1).tsv", stringsAsFactors = FALSE)
+str(fastqcounts)
+General.statistics <- read.delim("General statistics.txt", comment.char="#", stringsAsFactors = FALSE)
+str(General.statistics)
+readlen <- read.table("readlen.txt", quote="\"", comment.char="", stringsAsFactors = FALSE)
+str(readlen)
+head(readlen)
+getwd()
+T09.F.N.bam.vcf_meth_average <- read.delim("meth_average/T09-F-N.bam.vcf_meth_average.tsv", comment.char = "#", stringsAsFactors = FALSE)
+T09.F.O.bam.vcf_meth_average <- read.delim("meth_average/T09-F-O.bam.vcf_meth_average.tsv", comment.char = "#", stringsAsFactors = FALSE)
+T11.F.N.bam.vcf_meth_average <- read.delim("meth_average/T11-F-N.bam.vcf_meth_average.tsv", comment.char = "#", stringsAsFactors = FALSE)
+T11.F.O.bam.vcf_meth_average <- read.delim("meth_average/T11-F-O.bam.vcf_meth_average.tsv", comment.char = "#", stringsAsFactors = FALSE)
+T12.F.N.bam.vcf_meth_average <- read.delim("meth_average/T12-F-N.bam.vcf_meth_average.tsv", comment.char = "#", stringsAsFactors = FALSE)
+T12.F.O.bam.vcf_meth_average <- read.delim("meth_average/T12-F-O.bam.vcf_meth_average.tsv", comment.char = "#", stringsAsFactors = FALSE)
+meth_average <- merge(T09.F.N.bam.vcf_meth_average, T09.F.O.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, T11.F.N.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, T11.F.O.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, T12.F.N.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, T12.F.O.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+```
+
+Here we are creating a bar chart displaying the % of R1 reads that are trimmed by skewer
+
+```{r,trimmed,fig.height=8,fig.width=8}
+#Creating subsets of the data
+GSR1 <- General.statistics[grep("R1",General.statistics$Sample.Name),]
+GSR1
+#Removing percentage from data (column 3)
+GSR1t <- as.numeric(gsub("%","",GSR1[,3]))
+GSR1t
+#Removing unnecessary part of the name and attaching it to data
+names(GSR1t) <- sapply(strsplit(GSR1$Sample.Name,"_"),"[[",1)
+
+GSR1t
+
+par(mar=c(5,5,4,2))
+
+#Barplot for %trimmed
+barplot(GSR1t, main="% Trimmed", horiz=TRUE, las=1, xlim = c(0,70))
+
+```
+
+Here we are creating a bar chart of the R1 reads displaying their %GC content
+
+```{r,GC,fig.height=8,fig.width=8}
+#Removing percentage from data (column 5)
+GSR1GC <- as.numeric(gsub("%","",GSR1[,5]))
+
+#Removing unnecessary part of the name and attaching it to data
+names(GSR1GC) <- sapply(strsplit(GSR1$Sample.Name,"_"),"[[",1)
+
+par(mar=c(5,5,4,2))
+
+#Barplot for %GC content
+barplot(GSR1GC, main="% GC", horiz=TRUE, las=1, xlim = c(0,25))
+
+```
+
+Here we are creating a bar chart of the R1 %duplicate reads for each sample
+
+```{r,Duplicates,fig.height=8,fig.width=8}
+
+#Create additional collumns to work out percentage of duplicate reads and percentage of unique reads
+fastqcounts$Total.Reads <- (fastqcounts$Unique.Reads + fastqcounts$Duplicate.Reads)
+
+fastqcounts$Percent.Unique.Reads <- (fastqcounts$Unique.Reads / fastqcounts$Total.Reads)
+
+fastqcounts$Percent.Duplicate.Reads <- (fastqcounts$Duplicate.Reads / fastqcounts$Total.Reads * 100)
+
+fastqcounts
+
+FQCR1 <- fastqcounts[grep("R1",fastqcounts$Category),]
+
+FQCR1$Category <- sapply(strsplit(FQCR1$Category,"_"),"[[",1)
+str(FQCR1)
+
+par(mar=c(5,5,4,2))
+
+barplot(FQCR1$Percent.Duplicate.Reads, main="% Duplicates", names.arg = FQCR1$Category, horiz=TRUE, las=1, xlim = c(0,2))
+
+```
+
+Here we are creating a bar chart of the R1 %unique reads for each sample
+
+```{r,Unique,fig.height=8,fig.width=8}
+fastqcounts$Percent.Unique.Reads <- (fastqcounts$Unique.Reads / fastqcounts$Total.Reads * 100)
+
+fastqcounts
+
+FQCR1 <- fastqcounts[grep("R1",fastqcounts$Category),]
+
+FQCR1$Category <- sapply(strsplit(FQCR1$Category,"_"),"[[",1)
+
+par(mar=c(5,5,4,2))
+
+barplot(FQCR1$Percent.Unique.Reads, main="% Unique", names.arg = FQCR1$Category, horiz=TRUE, las=1, xlim = c(95,100))
+```
+
+Here we are creating a bar chart of the R1 total reads for each sample
+
+```{r, Total reads,fig.height=8, fig.width=8}
+par(mar=c(5,5,4,2))
+
+barplot(FQCR1$Total.Reads, main="Total Reads", names.arg = FQCR1$Category, horiz=TRUE, las=1)
+```
+
+Here we are creating a bar chart which displays the average insert length for each sample
+
+```{r, Readlen, fig.height=8,fig.width=8}
+RL <- gsub("_L001_R1_001.fastq-trimmed-"," ",readlen$V1)
+
+RL <- gsub(".fastq","",RL)
+
+RL
+
+par(mar = c(5,10,5,5))
+
+barplot(readlen$V2, main="Read Length (bp)", names.arg = RL, las=1, horiz=TRUE, xlim = c(140,150))
+
+```
+
+Here we are creating a bar chart which displays the CpH methylation in chromosome 1 for each sample
+
+```{r, CpH methylation chr1, fig.height=8, fig.width=8}
+#Creating subsets of the data
+chr.meth <- meth_average[grep("LG1$",meth_average$chrm),]
+head(chr.meth)
+#Removing percentage from data (column 10)
+chr.meth.cph <- as.numeric(gsub("%","",chr.meth[,10]))
+head(chr.meth.cph)
+#Removing unnecessary part of the name and attaching it to data
+names(chr.meth.cph) <- sapply(strsplit(chr.meth$sample,"\\."),"[[",1)
+chr.meth.cph
+
+par(mar=c(5,5,4,2))
+
+barplot(chr.meth.cph, main="% Chr1 CpH Methylation", horiz=TRUE, las=1, xlim = c(0,1.75))
+```
+
+Here we are creating a bar chart which displays the CpH methylation in mitochondrial DNA for each sample
+
+```{r, CpH methylation MT, fig.height=8, fig.width=8}
+#Creating subsets of the data
+mt.meth <- meth_average[grep("MT$",meth_average$chrm),]
+head(mt.meth)
+#Removing percentage from data (column 10)
+mt.meth.cph <- as.numeric(gsub("%","",mt.meth[,10]))
+head(mt.meth.cph)
+#Removing unnecessary part of the name and attaching it to data
+names(mt.meth.cph) <- sapply(strsplit(mt.meth$sample,"\\."),"[[",1)
+
+
+par(mar=c(5,5,4,2))
+
+barplot(mt.meth.cph, main="% MT CpH methylation", horiz=TRUE, las=1, xlim = c(0,1.75))
+```
+
+Here we are creating a bar chart which displays the CpH methylation in the lambda phage DNA for each sample
+
+```{r, CpH methylation lambda phage, fig.height=8, fig.width=8}
+#Creating subsets of the data
+lp.meth <- meth_average[grep("lambda_phage$",meth_average$chrm),]
+head(lp.meth)
+#Removing percentage from data (column 10)
+lp.meth.cph <- as.numeric(gsub("%","",lp.meth[,10]))
+head(mt.meth.cph)
+#Removing unnecessary part of the name and attaching it to data
+names(lp.meth.cph) <- sapply(strsplit(lp.meth$sample,"\\."),"[[",1)
+lp.meth.cph
+
+par(mar=c(5,5,4,2))
+
+barplot(lp.meth.cph, main="% Lambda Phage CpH methylation", horiz=TRUE, las=1, xlim = c(0,1.75))
+```
+
+Here we are creating a bar chart which displays the CpH methylation in the pUC19 plasmid for each sample
+
+```{r, CpH methylation pUC19, fig.height=8, fig.width=8}
+#Creating subsets of the data
+pUC19.meth <- meth_average[grep("pUC19$",meth_average$chrm),]
+head(pUC19.meth)
+#Removing percentage from data (column 10)
+pUC19.meth.cph <- as.numeric(gsub("%","",pUC19.meth[,10]))
+head(pUC19.meth.cph)
+#Removing unnecessary part of the name and attaching it to data
+names(pUC19.meth.cph) <- sapply(strsplit(pUC19.meth$sample,"\\."),"[[",1)
+pUC19.meth.cph
+
+par(mar=c(5,5,4,2))
+
+barplot(pUC19.meth.cph, main="% pUC19 Plasmid CpH methylation", horiz=TRUE, las=1, xlim = c(0,6))
+```
+
+Here we are creating a bar chart which displays the CG methylation in chromosome 1 for each sample
+
+```{r, CG methylation chr1, fig.height=8, fig.width=8}
+
+#Removing percentage from data (column 4)
+chr.meth.cg <- as.numeric(gsub("%","",chr.meth[,4]))
+head(chr.meth.cg)
+#Removing unnecessary part of the name and attaching it to data
+names(chr.meth.cg) <- sapply(strsplit(chr.meth$sample,"\\."),"[[",1)
+chr.meth.cg
+
+par(mar=c(5,5,4,2))
+
+barplot(chr.meth.cg, main="% Chr1 CG Methylation", horiz=TRUE, las=1, xlim = c(60,70))
+```
+
+Here we are creating a bar chart which displays the CG methylation in mitchondrial DNA for each sample
+
+```{r, CG methylation MT, fig.height=8, fig.width=8}
+mt.meth
+#Removing percentage from data (column 4)
+mt.meth.cg <- as.numeric(gsub("%","",mt.meth[,4]))
+head(mt.meth.cg)
+#Removing unnecessary part of the name and attaching it to data
+names(mt.meth.cg) <- sapply(strsplit(mt.meth$sample,"\\."),"[[",1)
+mt.meth.cg
+
+par(mar=c(5,5,4,2))
+
+barplot(mt.meth.cg, main="% MT CG Methylation", horiz=TRUE, las=1, xlim = c(0,0.75))
+```
+
+Here we are creating a bar chart which displays the CG methylation in the lambda phage DNA for each sample
+
+```{r, CG methylation lambda phage, fig.height=8, fig.width=8}
+#Removing percentage from data (column 4)
+lp.meth.cg <- as.numeric(gsub("%","",lp.meth[,4]))
+head(lp.meth.cg)
+#Removing unnecessary part of the name and attaching it to data
+names(lp.meth.cg) <- sapply(strsplit(lp.meth$sample,"\\."),"[[",1)
+lp.meth.cg
+
+par(mar=c(5,5,4,2))
+
+barplot(lp.meth.cg, main="% Lambda Phage CG methylation", horiz=TRUE, las=1, xlim = c(0,1.25))
+```
+
+Here we are creating a bar chart which displays the CG methylation in the pUC19 plasmid for each sample
+
+```{r, CG methylation pUC19, fig.height=8, fig.width=8}
+#Removing percentage from data (column 4)
+pUC19.meth.cg <- as.numeric(gsub("%","",pUC19.meth[,4]))
+head(pUC19.meth.cg)
+#Removing unnecessary part of the name and attaching it to data
+names(pUC19.meth.cg) <- sapply(strsplit(pUC19.meth$sample,"\\."),"[[",1)
+pUC19.meth.cg
+
+par(mar=c(5,5,4,2))
+
+barplot(pUC19.meth.cg, main="% pUC19 Plasmid CG methylation", horiz=TRUE, las=1, xlim = c(95,100))
+```
+
+Here we are creating a bar chart which displays the CHG methylation in chromosome 1 for each sample
+
+```{r, CHG methylation chr1, fig.height=8, fig.width=8}
+#Removing percentage from data (column 6)
+chr.meth.chg <- as.numeric(gsub("%","",chr.meth[,6]))
+head(chr.meth.chg)
+#Removing unnecessary part of the name and attaching it to data
+names(chr.meth.chg) <- sapply(strsplit(chr.meth$sample,"\\."),"[[",1)
+chr.meth.chg
+
+par(mar=c(5,5,4,2))
+
+barplot(chr.meth.chg, main="% Chr1 CHG Methylation", horiz=TRUE, las=1, xlim = c(0,1.7))
+```
+
+Here we are creating a bar chart which displays the CHG methylation in mitochondrial DNA for each sample
+
+```{r, CHG methylation MT, fig.height=8, fig.width=8}
+#Removing percentage from data (column 6)
+mt.meth.chg <- as.numeric(gsub("%","",mt.meth[,6]))
+head(mt.meth.chg)
+#Removing unnecessary part of the name and attaching it to data
+names(mt.meth.chg) <- sapply(strsplit(mt.meth$sample,"\\."),"[[",1)
+mt.meth.chg
+
+par(mar=c(5,5,4,2))
+
+barplot(mt.meth.chg, main="% MT CHG Methylation", horiz=TRUE, las=1, xlim = c(0,1.25))
+```
+
+Here we are creating a bar chart which displays the CHG methylation in the lambda phage DNA for each sample
+
+```{r, CHG methylation lambda phage, fig.height=8, fig.width=8}
+#Removing percentage from data (column 6)
+lp.meth.chg <- as.numeric(gsub("%","",lp.meth[,6]))
+head(lp.meth.chg)
+#Removing unnecessary part of the name and attaching it to data
+names(lp.meth.chg) <- sapply(strsplit(lp.meth$sample,"\\."),"[[",1)
+lp.meth.chg
+
+par(mar=c(5,5,4,2))
+
+barplot(lp.meth.chg, main="% Lambda Phage CHG methylation", horiz=TRUE, las=1, xlim = c(0,1.25))
+```
+
+Here we are creating a bar chart which displays the CHG methylation in the pUC19 plasmid DNA for each sample
+
+```{r, CHG methylation pUC19, fig.height=8, fig.width=8}
+#Removing percentage from data (column 6)
+pUC19.meth.chg <- as.numeric(gsub("%","",pUC19.meth[,6]))
+head(pUC19.meth.chg)
+#Removing unnecessary part of the name and attaching it to data
+names(pUC19.meth.chg) <- sapply(strsplit(pUC19.meth$sample,"\\."),"[[",1)
+pUC19.meth.chg
+
+par(mar=c(5,5,4,2))
+
+barplot(pUC19.meth.chg, main="% pUC19 Plasmid CHG methylation", horiz=TRUE, las=1, xlim = c(0,6))
+```
+
+Here we are creating a bar chart which displays the CHH methylation in chromosome 1 for each sample
+
+```{r, CHH methylation chr1, fig.height=8, fig.width=8}
+#Removing percentage from data (column 8)
+chr.meth.chh <- as.numeric(gsub("%","",chr.meth[,8]))
+head(chr.meth.chh)
+#Removing unnecessary part of the name and attaching it to data
+names(chr.meth.chh) <- sapply(strsplit(chr.meth$sample,"\\."),"[[",1)
+chr.meth.chh
+
+par(mar=c(5,5,4,2))
+
+barplot(chr.meth.chh, main="% Chr1 CHH Methylation", horiz=TRUE, las=1, xlim = c(0,1.7))
+```
+
+Here we are creating a bar chart which displays the CHH methylation in the mitochondrial DNA for each sample
+
+```{r, CHH methylation MT, fig.height=8, fig.width=8}
+#Removing percentage from data (column 8)
+mt.meth.chh <- as.numeric(gsub("%","",mt.meth[,8]))
+head(mt.meth.chh)
+#Removing unnecessary part of the name and attaching it to data
+names(mt.meth.chh) <- sapply(strsplit(mt.meth$sample,"\\."),"[[",1)
+mt.meth.chh
+
+par(mar=c(5,5,4,2))
+
+barplot(mt.meth.chh, main="% MT CHH Methylation", horiz=TRUE, las=1, xlim = c(0,2))
+```
+
+Here we are creating a bar chart which displays the CHH methylation in the lambda phage DNA for each sample
+
+```{r, CHH methylation lambda phage, fig.height=8, fig.width=8}
+#Removing percentage from data (column 8)
+lp.meth.chh <- as.numeric(gsub("%","",lp.meth[,8]))
+head(lp.meth.chh)
+#Removing unnecessary part of the name and attaching it to data
+names(lp.meth.chh) <- sapply(strsplit(lp.meth$sample,"\\."),"[[",1)
+lp.meth.chh
+
+par(mar=c(5,5,4,2))
+
+barplot(lp.meth.chh, main="% Lambda Phage CHH methylation", horiz=TRUE, las=1, xlim = c(0,1.5))
+```
+
+Here we are creating a bar chart which displays the CHH methylation in the pUC19 plasmid DNA for each sample
+
+```{r, CHH methylation pUC19, fig.height=8, fig.width=8}
+#Removing percentage from data (column 8)
+pUC19.meth.chh <- as.numeric(gsub("%","",pUC19.meth[,8]))
+head(pUC19.meth.chh)
+#Removing unnecessary part of the name and attaching it to data
+names(pUC19.meth.chh) <- sapply(strsplit(pUC19.meth$sample,"\\."),"[[",1)
+pUC19.meth.chh
+
+par(mar=c(5,5,4,2))
+
+barplot(pUC19.meth.chh, main="% pUC19 Plasmid CHH methylation", horiz=TRUE, las=1, xlim = c(0,7))
+```
+
 ## Session information
+
 
 For reproducibility.
 

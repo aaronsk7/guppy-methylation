@@ -1,0 +1,161 @@
+---
+title: "Methylation Main Data Analysis"
+author: "Aaron Kovacs"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+theme: cosmo
+---
+
+This code is available at https://github.com/aaronsk7/guppy-methylation
+
+
+In this script we are analysing fragment insert size
+
+```{r, violin insert lengths,fig.height=8,fig.width=8}
+getwd()
+
+library(vioplot)
+
+myfilelist <- list.files("insertlenMD", full.names = TRUE, pattern = "insertlen.txt")
+
+myread <- function(myfile){
+  x <- as.numeric(readLines(myfile))
+  x <- head(x,2000000)
+  x <- x[which(x<2000)]
+  x <- x[which(x>0)]
+  x
+}
+
+x <- lapply(myfilelist,myread)
+mysamplenames <- sapply(strsplit(myfilelist,"/"),"[[",2)
+mysamplenames <- sapply(strsplit(mysamplenames,"\\."),"[[",1)
+mysamplenames
+names(x) <- mysamplenames
+str(x)
+par(mar=c(5,5,4,2))
+vioplot(x,main = "Insert length (bp)" , horizontal=TRUE,  side="right" , las=1 , ylim=c(0,1000))
+```
+
+
+## Import data sets
+
+```{r, importdata}
+Foundation.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Foundation.bam.vcf_meth_average.tsv",stringsAsFactors = FALSE)
+Clear2F.R1.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Clear2F-R1.bam.vcf_meth_average.tsv", stringsAsFactors = FALSE)
+Green3F.R1.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Green3F-R1.bam.vcf_meth_average.tsv",stringsAsFactors = FALSE)
+Lilac4F.R1.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Lilac4F-R1.bam.vcf_meth_average.tsv",stringsAsFactors = FALSE)
+meth_average <- merge(Foundation.bam.vcf_meth_average, Clear2F.R1.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, Green3F.R1.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, Lilac4F.R1.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+```
+
+
+```{r,CpG methaverage Chr1, fig.height=8, fig.width=8}
+#Isolate chromosome 1 methylation average
+chr.meth <- meth_average[grep("LG1$",meth_average$chrm),]
+head(chr.meth)
+#Isolate CpG percentage from chromosome 1 methylation average and remove percent sign
+chr.meth.cpg <- as.numeric(gsub("%","",chr.meth[,4]))
+head(chr.meth.cpg)
+#Create sample names
+mysamplenames <- sapply(strsplit(chr.meth$sample,"\\."),"[[",1)
+mysamplenames <- gsub(".bam","",chr.meth[,1])
+mysamplenames <- gsub("2F-","",mysamplenames)
+mysamplenames <- gsub("3F-","",mysamplenames)
+mysamplenames <- gsub("4F-","",mysamplenames)
+mysamplenames
+#Attach sample names to percent values
+names(chr.meth.cpg) <- mysamplenames
+chr.meth.cpg
+#Create bar chart
+par(mar=c(5,6,4,2))
+barplot(chr.meth.cpg, main="% Chr1 CpG Methylation", horiz=TRUE, las=1, xlim = c(60,80))
+```
+
+
+
+```{r, CpG methaverage mtDNA, fig.height=8, fig.width=8}
+mt.meth <- meth_average[grep("MT$",meth_average$chrm),]
+mt.meth
+mt.meth.cpg <- as.numeric(gsub("%","",mt.meth[,4]))
+mt.meth.cpg
+mysamplenames
+names(mt.meth.cpg) <- mysamplenames
+mt.meth.cpg
+par(mar=c(5,6,4,2))
+barplot(mt.meth.cpg, main = "% Mitochondrial CpG Methylation", horiz = TRUE, las = 1,xlim = c(0,0.25))
+```
+
+
+
+```{r,CpG methaverage lambda phage, fig.height=8, fig.width=8}
+lp.meth <- meth_average[grep("lambda_phage$",meth_average$chrm),]
+lp.meth
+lp.meth.cpg <- as.numeric(gsub("%","",lp.meth[,4]))
+names(lp.meth.cpg) <- mysamplenames
+lp.meth.cpg
+par(mar=c(5,6,4,2))
+barplot(lp.meth.cpg, main = "% Lambda Phage CpG Methylation", horiz = TRUE, las = 1, xlim = c(0,0.3))
+```
+
+
+
+```{r,CpG methaverage pUC19 plasmid, fig.height=8, fig.width=8}
+pUC19.meth <- meth_average[grep("pUC19$",meth_average$chrm),]
+pUC19.meth.cpg <- as.numeric(gsub("%","",pUC19.meth[,4]))
+pUC19.meth.cpg
+names(pUC19.meth.cpg) <- mysamplenames
+par(mar=c(5,6,4,2))
+barplot(pUC19.meth.cpg, main = "% pUC19 CpG Methylation", horiz = TRUE, las = 1, xlim = c(90,100))
+```
+
+
+
+```{r, CpH methaverage Chr1, fig.height=8, fig.width=8}
+chr.meth.cph <- as.numeric(gsub("%","",chr.meth[,10]))
+names(chr.meth.cph) <- mysamplenames
+par(mar=c(5,6,4,2))
+barplot(chr.meth.cph, main = "% Chr1 CpH Methylation", horiz = TRUE, las = 1, xlim = c(0,0.6))
+```
+
+
+```{r, CpH methaverage mtDNA, fig.height=8, fig.width=8}
+mt.meth.cph <- as.numeric(gsub("%","",mt.meth[,10]))
+names(mt.meth.cph) <- mysamplenames
+par(mar=c(5,6,4,2))
+barplot(mt.meth.cph, main = "% mtDNA CpH Methylation", horiz = TRUE, las = 1,xlim = c(0,0.3))
+```
+
+
+```{r, CpH methaverage lambda phage, fig.height=6, fig.width=6}
+lp.meth.cph <- as.numeric(gsub("%","",lp.meth[,10]))
+names(lp.meth.cph) <- mysamplenames
+par(mar=c(5,6,4,2))
+barplot(lp.meth.cph, main = "% Lambda Phage CpH Methylation", horiz = TRUE, las = 1,xlim = c(0,0.3))
+```
+
+
+```{r, CpH methaverage pUC19 plasmid, fig.height=6, fig.width=6}
+pUC19.meth.cph <- as.numeric(gsub("%","",pUC19.meth[,10]))
+names(pUC19.meth.cph) <- mysamplenames
+par(mar=c(5,6,4,2))
+barplot(pUC19.meth.cph, main = "% pUC19 Plasmid CpH Methylation", horiz = TRUE, las = 1,xlim = c(0,1.2))
+```
+
+
+
+
+
+
+
+
+## Session information
+
+
+For reproducibility.
+
+```{r,sessioninfo}
+sessionInfo()
+```

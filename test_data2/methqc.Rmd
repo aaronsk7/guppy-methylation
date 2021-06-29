@@ -128,7 +128,7 @@ Here we are creating a bar chart of the R1 reads displaying their %GC content
 ```{r,GC,fig.height=8,fig.width=8}
 #Removing percentage from data (column 5)
 GSR1GC <- as.numeric(gsub("%","",GSR1[,5]))
-
+GSR1GC
 #Removing unnecessary part of the name and attaching it to data
 names(GSR1GC) <- sapply(strsplit(GSR1$Sample.Name,"_"),"[[",1)
 
@@ -187,7 +187,7 @@ par(mar=c(5,5,4,2))
 barplot(FQCR1$Total.Reads, main="Total Reads", names.arg = FQCR1$Category, horiz=TRUE, las=1)
 ```
 
-Here we are creating a bar chart which displays the average insert length for each sample
+Here we are creating a bar chart which displays the average read length for each sample
 
 ```{r, Readlen, fig.height=8,fig.width=8}
 RL <- gsub("_L001_R1_001.fastq-trimmed-"," ",readlen$V1)
@@ -454,6 +454,77 @@ pUC19.meth.chh
 par(mar=c(5,5,4,2))
 
 barplot(pUC19.meth.chh, main="% pUC19 Plasmid CHH methylation", horiz=TRUE, las=1, xlim = c(0,7))
+```
+
+```{r, Wasted bases analysis, fig.height=8, fig.width=8}
+library(RColorBrewer)
+coul <- brewer.pal(4, "Pastel1")
+#import data
+basecount <- read.table("~/projects/guppy-methylation/test_data2/basecount.txt", quote="\"", comment.char="", stringsAsFactors = FALSE)
+#Add read 1 and 2 together in basecount start
+basecountSTARTR1 <- basecount[grep("R1_001.fastq.gz",basecount$V2),]
+basecountSTARTR2 <- basecount[grep("R2_001.fastq.gz",basecount$V2),]
+basecountSTART <- basecountSTARTR1$V3 + basecountSTARTR2$V3
+names(basecountSTART) <- mysamplenames
+basecountSTART
+#Add read 1 and 2 together in trimmed reads
+basecountAFTERSKEWERR1 <- basecount[grep("pair1",basecount$V2),]
+basecountAFTERSKEWERR2 <- basecount[grep("pair2",basecount$V2),]
+basecountAFTERSKEWER <- basecountAFTERSKEWERR1$V3 + basecountAFTERSKEWERR2$V3
+names(basecountAFTERSKEWER) <- mysamplenames
+basecountAFTERSKEWER
+#Create "after overlapping reads removed values" by subtracting OVERLAPPING from AFTERMAPPED reads
+AFTERMAPPED <- basecount[grep("AFTERMAPPED",basecount$V1),]
+OVERLAPPING <- basecount[grep("OVERLAPPING",basecount$V1),]
+basecountMAPPED <- AFTERMAPPED$V3
+basecountMAPPED
+names(basecountMAPPED) <- mysamplenames
+basecountMAPPED
+basecountOVERLAPPING <- OVERLAPPING$V3
+UseableBP <- AFTERMAPPED$V3 - OVERLAPPING$V3
+names(UseableBP) <- mysamplenames
+UseableBP
+basecountTRIMMED <- basecountSTART - basecountAFTERSKEWER
+basecountUNMAPPED <- basecountAFTERSKEWER - basecountMAPPED
+#Create a data frame containing all vectors created above
+DF <- data.frame(basecountSTART,basecountTRIMMED,basecountAFTERSKEWER,basecountUNMAPPED,basecountMAPPED,basecountOVERLAPPING,UseableBP)
+DF
+#Create a data frame containing how many bases have been removed and the leftover bases
+DF2 <- data.frame(basecountTRIMMED,basecountUNMAPPED,basecountOVERLAPPING,UseableBP)
+DF2
+#Calculate the percentage of wasted bases in each step and usable bases leftover by dividing each vector value by the total bases in the data frame (to 3 significant values)
+colSums(DF2)
+labels <- c("Trimmed","Unmapped/Duplicate","Overlapping","UseableBP")
+percent <- as.character(signif(colSums(DF2)/sum(colSums(DF2))*100,3))
+percent
+labels2 <- paste(labels,percent,"%")
+pie(colSums(DF2),labels = labels2,col = coul)
+#Calculate the percentage of bases removed for each sample by each step 
+DF3 <- DF2/rowSums(DF2)*100
+DF3
+barplot(t(DF3),col=coul,ylab = "Percent of Bases")
+legend(5.25, 95, legend = c(labels), col = c(coul), box.lty = 1, cex=0.8, pch = 19)
+```
+
+```{r, flowchart, fig.height=8, fig.width=8}
+#Create flow chart depicting intitial to usable bases
+library(DiagrammeR)
+grViz("
+   
+digraph Wasted_Bases_Analysis {
+
+node [shape = circle, fontsize = 24, style = filled, fillcolor = CornFlowerBlue]
+Initial_Base_Pairs [width = 5.25, height = 5.25, label = 'Initial Base Pairs']
+Base_PairsA [width = 4.5, height = 4.5, label = 'Base Pairs']
+Base_PairsB [width = 3.75, height = 3.75,label = 'Base Pairs']
+Useable_Base_Pairs [width = 3, height = 3, label = 'Usable Base Pairs']
+
+edge [arrowhead = normal, arrowsize = 1.2, fontsize = 24, fontcolor = red3, penwidth = 3]
+Initial_Base_Pairs->Base_PairsA [label = '      - Low Adapter Quality']
+Base_PairsA->Base_PairsB [label = '      - Duplicate/Unmapped Reads']
+Base_PairsB->Useable_Base_Pairs [label = '      - Overlapping Reads']
+}      
+")
 ```
 
 ## Session information

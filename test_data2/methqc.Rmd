@@ -498,10 +498,13 @@ labels <- c("Trimmed","Unmapped/Duplicate","Overlapping","UseableBP")
 percent <- as.character(signif(colSums(DF2)/sum(colSums(DF2))*100,3))
 percent
 labels2 <- paste(labels,percent,"%")
+labels2
+par(mar=c(5,5,4,7))
 pie(colSums(DF2),labels = labels2,col = coul)
 #Calculate the percentage of bases removed for each sample by each step 
 DF3 <- DF2/rowSums(DF2)*100
 DF3
+par(mar=c(5,5,4,2))
 barplot(t(DF3),col=coul,ylab = "Percent of Bases")
 legend(5.25, 95, legend = c(labels), col = c(coul), box.lty = 1, cex=0.8, pch = 19)
 ```

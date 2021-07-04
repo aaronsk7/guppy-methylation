@@ -34,7 +34,7 @@ mysamplenames <- sapply(strsplit(mysamplenames,"\\."),"[[",1)
 mysamplenames
 names(x) <- mysamplenames
 str(x)
-par(mar=c(5,5,4,2))
+par(mar=c(5,7,4,2))
 vioplot(x,main = "Insert length (bp)" , horizontal=TRUE,  side="right" , las=1 , ylim=c(0,1000))
 ```
 
@@ -44,11 +44,23 @@ vioplot(x,main = "Insert length (bp)" , horizontal=TRUE,  side="right" , las=1 ,
 ```{r, importdata}
 Foundation.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Foundation.bam.vcf_meth_average.tsv",stringsAsFactors = FALSE)
 Clear2F.R1.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Clear2F-R1.bam.vcf_meth_average.tsv", stringsAsFactors = FALSE)
+Clear2F.R2.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Clear2F-R2.bam.vcf_meth_average.tsv", stringsAsFactors = FALSE)
+Clear2F.R3.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Clear2F-R3.bam.vcf_meth_average.tsv", stringsAsFactors = FALSE)
 Green3F.R1.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Green3F-R1.bam.vcf_meth_average.tsv",stringsAsFactors = FALSE)
+Green3F.R2.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Green3F-R2.bam.vcf_meth_average.tsv", stringsAsFactors = FALSE)
+Green3F.R3.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Green3F-R3.bam.vcf_meth_average.tsv", stringsAsFactors = FALSE)
 Lilac4F.R1.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Lilac4F-R1.bam.vcf_meth_average.tsv",stringsAsFactors = FALSE)
+Lilac4F.R2.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Lilac4F-R2.bam.vcf_meth_average.tsv",stringsAsFactors = FALSE)
+Lilac4F.R3.bam.vcf_meth_average <- read.delim("~/projects/guppy-methylation/methaverageMD/Lilac4F-R3.bam.vcf_meth_average.tsv",stringsAsFactors = FALSE)
 meth_average <- merge(Foundation.bam.vcf_meth_average, Clear2F.R1.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, Clear2F.R2.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, Clear2F.R3.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
 meth_average <- merge(meth_average, Green3F.R1.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, Green3F.R2.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, Green3F.R3.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
 meth_average <- merge(meth_average, Lilac4F.R1.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, Lilac4F.R2.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+meth_average <- merge(meth_average, Lilac4F.R3.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
 ```
 
 
@@ -85,7 +97,7 @@ mysamplenames
 names(mt.meth.cpg) <- mysamplenames
 mt.meth.cpg
 par(mar=c(5,6,4,2))
-barplot(mt.meth.cpg, main = "% Mitochondrial CpG Methylation", horiz = TRUE, las = 1,xlim = c(0,0.25))
+barplot(mt.meth.cpg, main = "% Mitochondrial CpG Methylation", horiz = TRUE, las = 1,xlim = c(0,0.3))
 ```
 
 
@@ -129,7 +141,7 @@ barplot(mt.meth.cph, main = "% mtDNA CpH Methylation", horiz = TRUE, las = 1,xli
 ```
 
 
-```{r, CpH methaverage lambda phage, fig.height=6, fig.width=6}
+```{r, CpH methaverage lambda phage, fig.height=8, fig.width=8}
 lp.meth.cph <- as.numeric(gsub("%","",lp.meth[,10]))
 names(lp.meth.cph) <- mysamplenames
 par(mar=c(5,6,4,2))
@@ -137,16 +149,69 @@ barplot(lp.meth.cph, main = "% Lambda Phage CpH Methylation", horiz = TRUE, las 
 ```
 
 
-```{r, CpH methaverage pUC19 plasmid, fig.height=6, fig.width=6}
+```{r, CpH methaverage pUC19 plasmid, fig.height=8, fig.width=8}
 pUC19.meth.cph <- as.numeric(gsub("%","",pUC19.meth[,10]))
 names(pUC19.meth.cph) <- mysamplenames
 par(mar=c(5,6,4,2))
-barplot(pUC19.meth.cph, main = "% pUC19 Plasmid CpH Methylation", horiz = TRUE, las = 1,xlim = c(0,1.2))
+barplot(pUC19.meth.cph, main = "% pUC19 Plasmid CpH Methylation", horiz = TRUE, las = 1,xlim = c(0,1.4))
 ```
 
 
-
-
+```{r, Wasted bases analysis, fig.height=6, fig.width=6}
+library(RColorBrewer)
+library(kableExtra)
+coul <- brewer.pal(4, "Pastel1")
+#import data
+basecount <- read.table("~/projects/guppy-methylation/basecount.txt", quote="\"", comment.char="", stringsAsFactors = FALSE)
+#Add read 1 and 2 together in basecount start
+basecountSTARTR1 <- basecount[grep("R1_001.fastq.gz",basecount$V2),]
+basecountSTARTR2 <- basecount[grep("R2_001.fastq.gz",basecount$V2),]
+basecountSTART <- basecountSTARTR1$V3 + basecountSTARTR2$V3
+mysamplenames
+names(basecountSTART) <- mysamplenames
+basecountSTART
+#Add read 1 and 2 together in trimmed reads
+basecountAFTERSKEWERR1 <- basecount[grep("pair1",basecount$V2),]
+basecountAFTERSKEWERR2 <- basecount[grep("pair2",basecount$V2),]
+basecountAFTERSKEWER <- basecountAFTERSKEWERR1$V3 + basecountAFTERSKEWERR2$V3
+names(basecountAFTERSKEWER) <- mysamplenames
+basecountAFTERSKEWER
+#Create "after overlapping reads removed values" by subtracting OVERLAPPING from AFTERMAPPED reads
+AFTERMAPPED <- basecount[grep("AFTERMAPPED",basecount$V1),]
+OVERLAPPING <- basecount[grep("OVERLAPPING",basecount$V1),]
+basecountMAPPED <- AFTERMAPPED$V3
+basecountMAPPED
+names(basecountMAPPED) <- mysamplenames
+basecountMAPPED
+basecountOVERLAPPING <- OVERLAPPING$V3
+UseableBP <- AFTERMAPPED$V3 - OVERLAPPING$V3
+names(UseableBP) <- mysamplenames
+UseableBP
+basecountTRIMMED <- basecountSTART - basecountAFTERSKEWER
+basecountUNMAPPED <- basecountAFTERSKEWER - basecountMAPPED
+#Create a data frame containing all vectors created above
+DF <- data.frame(basecountSTART,basecountTRIMMED,basecountAFTERSKEWER,basecountUNMAPPED,basecountMAPPED,basecountOVERLAPPING,UseableBP)
+DF %>%
+  kbl(caption = "Wasted Bases Analysis") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+#Create a data frame containing how many bases have been removed and the leftover bases
+DF2 <- data.frame(basecountTRIMMED,basecountUNMAPPED,basecountOVERLAPPING,UseableBP)
+DF2
+#Calculate the percentage of wasted bases in each step and usable bases leftover by dividing each vector value by the total bases in the data frame (to 3 significant values)
+colSums(DF2)
+labels <- c("Trimmed","Unmapped/Duplicate","Overlapping","UseableBP")
+percent <- as.character(signif(colSums(DF2)/sum(colSums(DF2))*100,3))
+percent
+labels2 <- paste(labels,percent,"%")
+par(mar=c(5,5,4,7))
+pie(colSums(DF2),labels = labels2,col = coul)
+#Calculate the percentage of bases removed for each sample by each step 
+DF3 <- DF2/rowSums(DF2)*100
+DF3
+par(mar=c(6,5,4,2))
+barplot(t(DF3),col=coul, las=2, ylab = "Percent of Bases")
+legend(7, 95, legend = c(labels), col = c(coul), cex=0.8, pch = 19)
+```
 
 
 

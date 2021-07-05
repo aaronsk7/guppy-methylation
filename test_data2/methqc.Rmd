@@ -143,7 +143,7 @@ Here we are creating a bar chart of the R1 %duplicate reads for each sample
 
 ```{r,Duplicates,fig.height=8,fig.width=8}
 
-#Create additional collumns to work out percentage of duplicate reads and percentage of unique reads
+#Create additional columns to work out percentage of duplicate reads and percentage of unique reads
 fastqcounts$Total.Reads <- (fastqcounts$Unique.Reads + fastqcounts$Duplicate.Reads)
 
 fastqcounts$Percent.Unique.Reads <- (fastqcounts$Unique.Reads / fastqcounts$Total.Reads)

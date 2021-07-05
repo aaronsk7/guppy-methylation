@@ -61,7 +61,11 @@ meth_average <- merge(meth_average, Green3F.R3.bam.vcf_meth_average, all.x = TRU
 meth_average <- merge(meth_average, Lilac4F.R1.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
 meth_average <- merge(meth_average, Lilac4F.R2.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
 meth_average <- merge(meth_average, Lilac4F.R3.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
+readlen <- read.table("~/projects/guppy-methylation/readlen.txt", quote="\"", comment.char="", stringsAsFactors = FALSE)
+General.statistics <- read.delim("~/projects/guppy-methylation/General statistics.txt", comment.char="#",stringsAsFactors = FALSE)
+FastQCcounts <- read.delim("~/projects/guppy-methylation/fastqc_sequence_counts_plot MainQC.txt", stringsAsFactors = FALSE)
 ```
+
 
 
 ```{r,CpG methaverage Chr1, fig.height=8, fig.width=8}
@@ -157,7 +161,67 @@ barplot(pUC19.meth.cph, main = "% pUC19 Plasmid CpH Methylation", horiz = TRUE, 
 ```
 
 
-```{r, Wasted bases analysis, fig.height=6, fig.width=6}
+
+```{r, Trimmed %,  fig.height=8, fig.width=8}
+GSR1 <- General.statistics[grep("R1_001",General.statistics$Sample.Name),]
+GSR1t <- as.numeric(gsub("%","",GSR1[,3]))
+mysamplenames
+names(GSR1t) <- mysamplenames
+GSR1t
+par(mar=c(5,6,4,2))
+barplot(GSR1t, main = "% Trimmed", horiz=TRUE, las=1, xlim = c(55,65))
+```
+
+
+```{r, % GC, fig.height=8, fig.width=8}
+GSR1GC <- as.numeric(gsub("%","",GSR1[,5]))
+names(GSR1GC) <- mysamplenames
+par(mar=c(5,6,4,2))
+barplot(GSR1GC, main = "% GC content", horiz=TRUE, las=1, xlim = c(0,25))
+```
+
+
+```{r, Total reads, fig.height=8, fig.width=8}
+#Create additional columns to work out percentage of duplicate reads and percentage of unique reads
+FastQCcounts$Total.Reads <- (FastQCcounts$Unique.Reads + FastQCcounts$Duplicate.Reads)
+
+FQCR1 <- FastQCcounts[grep("R1_001",FastQCcounts$Category),]
+TRR1
+FQCR2 <- FastQCcounts[grep("R2_001",FastQCcounts$Category),]
+TR <- FQCR1$Total.Reads + FQCR2$Total.Reads
+names(TR) <- mysamplenames
+TR
+par(mar=c(5,6,4,2))
+barplot(TR, main = "Total Reads", las = 1,horiz=TRUE) 
+```
+
+```{r, Duplicate %, fig.height=8, fig.width=8}
+Dup <- FQCR1$Duplicate.Reads + FQCR2$Duplicate.Reads
+PDup <- (Dup / TR * 100)
+par(mar=c(5,6,4,2))
+barplot(PDup, main = "% Duplicate Reads", horiz = TRUE, las = 1, xlim = c(0,12)) 
+```
+
+
+```{r, Unique %, fig.height=8, fig.width=8}
+Uni <- FQCR1$Unique.Reads + FQCR2$Unique.Reads
+PUni <- (Uni / TR * 100)
+par(mar=c(5,6,4,2))
+barplot(PUni, main = "% Unique Reads", horiz = TRUE, las = 1, xlim = c(85,92))
+```
+
+
+
+```{r,read length average, fig.height=8, fig.width=8}
+par(mar = c(5,10,5,5))
+RL <- gsub("R1_001.fastq-trimmed-","",readlen[,1])
+RL <- gsub(".fastq","",RL)
+RL
+barplot(readlen$V2, main="Mean Read Length (bp)", names.arg = RL, las=1, horiz=TRUE, xlim = c(148,152))
+```
+
+
+```{r, Wasted bases analysis table, fig.height=6, fig.width=6}
 library(RColorBrewer)
 library(kableExtra)
 coul <- brewer.pal(4, "Pastel1")
@@ -194,6 +258,11 @@ DF <- data.frame(basecountSTART,basecountTRIMMED,basecountAFTERSKEWER,basecountU
 DF %>%
   kbl(caption = "Wasted Bases Analysis") %>%
   kable_classic(full_width = F, html_font = "Cambria")
+```
+
+
+
+```{r, Wasted bases analysis piechart, fig.height=6, fig.width=6}}
 #Create a data frame containing how many bases have been removed and the leftover bases
 DF2 <- data.frame(basecountTRIMMED,basecountUNMAPPED,basecountOVERLAPPING,UseableBP)
 DF2
@@ -205,6 +274,11 @@ percent
 labels2 <- paste(labels,percent,"%")
 par(mar=c(5,5,4,7))
 pie(colSums(DF2),labels = labels2,col = coul)
+```
+
+
+
+```{r, Wasted bases analysis stacked barplot, fig.height=6, fig.width=6}
 #Calculate the percentage of bases removed for each sample by each step 
 DF3 <- DF2/rowSums(DF2)*100
 DF3

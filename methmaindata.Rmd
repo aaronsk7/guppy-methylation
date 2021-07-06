@@ -11,7 +11,7 @@ theme: cosmo
 This code is available at https://github.com/aaronsk7/guppy-methylation
 
 
-In this script we are analysing fragment insert size
+In this script we are analysing fragment insert size by creating a violin plot. This chart illustrates the distribution of insert sizes as well as the median insert size for each sample. In 150 bp paired-end sequencing an insert size of >300 bp is optimal. Each sample has a median of either close to or >300 bp in length and therefore these results indicate cost efficiency and high yield in our profiling.
 
 ```{r, violin insert lengths,fig.height=8,fig.width=8}
 getwd()
@@ -66,7 +66,7 @@ General.statistics <- read.delim("~/projects/guppy-methylation/General.statistic
 FastQCcounts <- read.delim("~/projects/guppy-methylation/fastqc_sequence_counts_plot MainQC.txt", stringsAsFactors = FALSE)
 ```
 
-
+This script analyses the chromosomal CpG methylation by creating a bar plot which displays the percentage of CpG methylation present in chromosome 1 of each sample. We expect consistent methylation between each sample and ~80% methylation when using zebrafish as our comparative species. These results are in line with our expectations and therefore indicate quality methylation profiling. 
 
 ```{r,CpG methaverage Chr1, fig.height=8, fig.width=8}
 #Isolate chromosome 1 methylation average
@@ -90,7 +90,7 @@ par(mar=c(5,6,4,2))
 barplot(chr.meth.cpg, main="% Chr1 CpG Methylation", horiz=TRUE, las=1, xlim = c(60,80))
 ```
 
-
+This script analyses the mitochondrial chromosome CpG methylation by creating a bar plot which displays the percentage of CpG methylation present in the mitochondrial chromosome of each sample. The mitochondrial chromosome typically contains little to no methylation. Each sample had consistently low mtDNA CpG methylation (<0.3%) and is therefore evidence of quality methylation profiling.
 
 ```{r, CpG methaverage mtDNA, fig.height=8, fig.width=8}
 mt.meth <- meth_average[grep("MT$",meth_average$chrm),]
@@ -104,7 +104,7 @@ par(mar=c(5,6,4,2))
 barplot(mt.meth.cpg, main = "% Mitochondrial CpG Methylation", horiz = TRUE, las = 1,xlim = c(0,0.3))
 ```
 
-
+This script analyses the lambda phage CpG methylation by creating a bar plot which displays the percentage of CpG methylation present in the lambda phage DNA spiked into each sample. This lambda phage was unmethylated and the same lambda phage was spiked into each sample therefore we expect very low methylation (<5%) and consistency between the samples. Each sample had consistently low CpG methylation (<0.3%) and is therefore evidence of quality methylation profiling.
 
 ```{r,CpG methaverage lambda phage, fig.height=8, fig.width=8}
 lp.meth <- meth_average[grep("lambda_phage$",meth_average$chrm),]
@@ -162,18 +162,10 @@ barplot(pUC19.meth.cph, main = "% pUC19 Plasmid CpH Methylation", horiz = TRUE, 
 
 
 
-```{r, Trimmed percent,  fig.height=8, fig.width=8}
-GSR1 <- General.statistics[grep("R1_001",General.statistics$Sample.Name),]
-GSR1t <- as.numeric(gsub("%","",GSR1[,3]))
-mysamplenames
-names(GSR1t) <- mysamplenames
-GSR1t
-par(mar=c(5,6,4,2))
-barplot(GSR1t, main = "% Trimmed", horiz=TRUE, las=1, xlim = c(55,65))
-```
 
 
 ```{r, percent GC, fig.height=8, fig.width=8}
+GSR1 <- General.statistics[grep("R1_001",General.statistics$Sample.Name),]
 GSR1GC <- as.numeric(gsub("%","",GSR1[,5]))
 names(GSR1GC) <- mysamplenames
 par(mar=c(5,6,4,2))
@@ -186,28 +178,35 @@ barplot(GSR1GC, main = "% GC content", horiz=TRUE, las=1, xlim = c(0,25))
 FastQCcounts$Total.Reads <- (FastQCcounts$Unique.Reads + FastQCcounts$Duplicate.Reads)
 
 FQCR1 <- FastQCcounts[grep("R1_001",FastQCcounts$Category),]
-
-FQCR2 <- FastQCcounts[grep("R2_001",FastQCcounts$Category),]
-TR <- FQCR1$Total.Reads + FQCR2$Total.Reads
-names(TR) <- mysamplenames
+mysamplenamesR <- sapply(strsplit(FastQCcounts$Category,"\\."),"[[",1)
+mysamplenamesR <- gsub("_001","",FastQCcounts[,1])
+mysamplenamesR <- gsub("2F-","",mysamplenamesR)
+mysamplenamesR <- gsub("3F-","",mysamplenamesR)
+mysamplenamesR <- gsub("4F-","",mysamplenamesR)
+mysamplenamesR <- gsub("_"," ",mysamplenamesR)
+mysamplenamesR
+mysamplenames
+TR <- FQCR1$Total.Reads
 TR
+names(TR) <- mysamplenames
+
 par(mar=c(5,6,4,2))
-barplot(TR, main = "Total Reads", las = 1,horiz=TRUE) 
+barplot(TR, main = "Total Reads", las = 1,horiz=TRUE, xlim = c(40000000,160000000)) 
 ```
 
 ```{r, Duplicate percent, fig.height=8, fig.width=8}
-Dup <- FQCR1$Duplicate.Reads + FQCR2$Duplicate.Reads
+Dup <- FQCR1$Duplicate.Reads
 PDup <- (Dup / TR * 100)
 par(mar=c(5,6,4,2))
-barplot(PDup, main = "% Duplicate Reads", horiz = TRUE, las = 1, xlim = c(0,12)) 
+barplot(PDup, main = "% Duplicate Reads", horiz = TRUE, las = 1, xlim = c(0,15)) 
 ```
 
 
 ```{r, Unique percent, fig.height=8, fig.width=8}
-Uni <- FQCR1$Unique.Reads + FQCR2$Unique.Reads
+Uni <- FQCR1$Unique.Reads
 PUni <- (Uni / TR * 100)
 par(mar=c(5,6,4,2))
-barplot(PUni, main = "% Unique Reads", horiz = TRUE, las = 1, xlim = c(85,92))
+barplot(PUni, main = "% Unique Reads", horiz = TRUE, las = 1, xlim = c(86,90))
 ```
 
 

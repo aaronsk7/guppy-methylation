@@ -196,7 +196,7 @@ par(mar=c(5,6,4,2))
 barplot(TR, main = "Total Reads", las = 1,horiz=TRUE, xlim = c(40000000,160000000)) 
 ```
 
-This script creates a bar plot which displays the percentage of duplicate reads present in each of our population DNA samples. As the number of total reads rises, the percentage of duplicate reads rises non-linearly. 
+This script creates a bar plot which displays the percentage of duplicate reads present in each of our population DNA samples. When analysing the percentage of duplicate reads >40% duplicate reads could be considered high, <40% and >20% could be considered medium and <20% could be considered low. Our samples had a considerably low percentage of duplicate reads. This provides evidence of a high yield in our methylation profiling.
 
 ```{r, Duplicate percent, fig.height=8, fig.width=8}
 Dup <- FQCR1$Duplicate.Reads
@@ -214,7 +214,7 @@ par(mar=c(5,6,4,2))
 barplot(PUni, main = "% Unique Reads", horiz = TRUE, las = 1, xlim = c(86,90))
 ```
 
-This script creates a bar plot which displays the mean read length (in bp) of each population DNA sample. We expect the average read length to be ~150 bp. This read length optimises the sequencing process by balancing reading the most base pairs in each fragment while not creating poor quality reads. This therefore, is the most cost efficient read length. Each of our samples average read length is very close to this number which therefore indicates cost efficiency and high coverage of the methylation profiling.
+This script creates a bar plot which displays the mean read length (in bp) of each population DNA sample. We expect the average read length to be ~150 bp. This read length optimises the sequencing process by balancing reading the most base pairs in each fragment while not creating poor quality reads. This is therefore the most cost efficient read length size. Each of our samples average read length is very close to this number. These results indicate cost efficiency and lead to high yield of our methylation profiling.
 
 ```{r,read length average, fig.height=8, fig.width=8}
 par(mar = c(5,10,5,5))
@@ -281,7 +281,7 @@ par(mar=c(5,5,4,7))
 pie(colSums(DF2),labels = labels2,col = coul)
 ```
 
-This script creates a stacked barplot which displays what percentage of bases are removed by each data processing step, the percentage of bases removed due to overlapping reads and the percentage of usable bases left in each of the population DNA samples. While overall the loss of bases was low for most samples, there were evidently problems mapping reads from the Clear R1 and Lilac R3 samples. We know that the problem is caused due to mapping difficulties as these samples did not contain a large number of duplicate reads. 
+This script creates a stacked barplot which displays what percentage of bases are removed by each data processing step, the percentage of bases removed due to overlapping reads and the percentage of usable bases left in each of the population DNA samples. The loss of bases was small for most samples, however there were evidently problems mapping reads from the Clear R1 and Lilac R3 samples. We know that the problem was caused due to mapping difficulties as these samples did not contain a large number of duplicate reads. 
 
 ```{r, Wasted bases analysis stacked barplot, fig.height=6, fig.width=6}
 #Calculate the percentage of bases removed for each sample by each step 

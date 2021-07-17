@@ -121,8 +121,8 @@ This script creates a bar plot which displays the percentage of CpG methylation 
 ```{r,CpG methaverage pUC19 plasmid, fig.height=8, fig.width=8}
 pUC19.meth <- meth_average[grep("pUC19$",meth_average$chrm),]
 pUC19.meth.cpg <- as.numeric(gsub("%","",pUC19.meth[,4]))
-pUC19.meth.cpg
 names(pUC19.meth.cpg) <- mysamplenames
+pUC19.meth.cpg
 par(mar=c(5,6,4,2))
 barplot(pUC19.meth.cpg, main = "% pUC19 CpG Methylation", horiz = TRUE, las = 1, xlim = c(90,100))
 ```
@@ -132,6 +132,7 @@ This script analyses the chromosomal CpH methylation by creating a bar plot whic
 ```{r, CpH methaverage Chr1, fig.height=8, fig.width=8}
 chr.meth.cph <- as.numeric(gsub("%","",chr.meth[,10]))
 names(chr.meth.cph) <- mysamplenames
+chr.meth.cph
 par(mar=c(5,6,4,2))
 barplot(chr.meth.cph, main = "% Chr1 CpH Methylation", horiz = TRUE, las = 1, xlim = c(0,0.6))
 ```
@@ -141,6 +142,7 @@ This script creates a bar plot which displays the percentage of CpH methylation 
 ```{r, CpH methaverage mtDNA, fig.height=8, fig.width=8}
 mt.meth.cph <- as.numeric(gsub("%","",mt.meth[,10]))
 names(mt.meth.cph) <- mysamplenames
+mt.meth.cph
 par(mar=c(5,6,4,2))
 barplot(mt.meth.cph, main = "% mtDNA CpH Methylation", horiz = TRUE, las = 1,xlim = c(0,0.3))
 ```
@@ -150,6 +152,7 @@ This script creates a bar plot which displays the percentage of CpH methylation 
 ```{r, CpH methaverage lambda phage, fig.height=8, fig.width=8}
 lp.meth.cph <- as.numeric(gsub("%","",lp.meth[,10]))
 names(lp.meth.cph) <- mysamplenames
+lp.meth.cph
 par(mar=c(5,6,4,2))
 barplot(lp.meth.cph, main = "% Lambda Phage CpH Methylation", horiz = TRUE, las = 1,xlim = c(0,0.3))
 ```
@@ -159,6 +162,7 @@ This script creates a bar plot which displays the percentage of CpH methylation 
 ```{r, CpH methaverage pUC19 plasmid, fig.height=8, fig.width=8}
 pUC19.meth.cph <- as.numeric(gsub("%","",pUC19.meth[,10]))
 names(pUC19.meth.cph) <- mysamplenames
+pUC19.meth.cph
 par(mar=c(5,6,4,2))
 barplot(pUC19.meth.cph, main = "% pUC19 Plasmid CpH Methylation", horiz = TRUE, las = 1,xlim = c(0,1.4))
 ```
@@ -169,8 +173,9 @@ This script creates a bar plot which displays the percentage of GC base pairs pr
 GSR1 <- General.statistics[grep("R1_001",General.statistics$Sample.Name),]
 GSR1GC <- as.numeric(gsub("%","",GSR1[,5]))
 names(GSR1GC) <- mysamplenames
+GSR1GC
 par(mar=c(5,6,4,2))
-barplot(GSR1GC, main = "% GC content", horiz=TRUE, las=1, xlim = c(0,25))
+barplot(GSR1GC, main = "% GC Content", horiz=TRUE, las=1, xlim = c(0,25))
 ```
 
 This script creates a bar plot which displays the total reads present in each of our population DNA samples. As these are the results of whole genome enzymatic methyl-sequencing, we expect a very large quantity of reads. One article states 800,000,000 reads (trimmed and mapped) that are 101 bp in length are required for accurate coverage of the human genome when performing bisulfite sequencing. Although we are working with the guppy genome instead, this number of reads can serve as a rough benchmark. Considering our reads are 150 bp in length and the guppy genome is significantly smaller than the human genome (3,096,649,726 bp compared to 731,622,281 bp), our results are relatively close to this rough benchmark and indicate quality coverage of the guppy genome.
@@ -189,8 +194,9 @@ mysamplenamesR <- gsub("_"," ",mysamplenamesR)
 mysamplenamesR
 mysamplenames
 TR <- FQCR1$Total.Reads
-TR
+
 names(TR) <- mysamplenames
+TR
 
 par(mar=c(5,6,4,2))
 barplot(TR, main = "Total Reads", las = 1,horiz=TRUE, xlim = c(40000000,160000000)) 
@@ -201,6 +207,7 @@ This script creates a bar plot which displays the percentage of duplicate reads 
 ```{r, Duplicate percent, fig.height=8, fig.width=8}
 Dup <- FQCR1$Duplicate.Reads
 PDup <- (Dup / TR * 100)
+PDup
 par(mar=c(5,6,4,2))
 barplot(PDup, main = "% Duplicate Reads", horiz = TRUE, las = 1, xlim = c(0,15)) 
 ```
@@ -210,6 +217,7 @@ This script creates a bar plot which displays the percentage of unique reads pre
 ```{r, Unique percent, fig.height=8, fig.width=8}
 Uni <- FQCR1$Unique.Reads
 PUni <- (Uni / TR * 100)
+PUni
 par(mar=c(5,6,4,2))
 barplot(PUni, main = "% Unique Reads", horiz = TRUE, las = 1, xlim = c(86,90))
 ```
@@ -292,7 +300,14 @@ barplot(t(DF3),col=coul, las=2, ylab = "Percent of Bases")
 legend(7, 95, legend = c(labels), col = c(coul), cex=0.8, pch = 19)
 ```
 
+This script creates a barplot which displays an estimate of the fold coverage of the guppy genome for each DNA population sample. This is done by dividing the number of usable bases in each sample by the number of bases in the guppy genome. The US National Institutes of Health (NIH) Roadmap Epigenomics Project recommends the use of 2 replicates with a combined total coverage of 30×. Combining our 3 replicates, each of our light conditions easily surpass 30x coverage. These results indicate quality coverage of the guppy genome.
 
+```{r, Coverage estimate, fig.height=6, fig.width=6}
+coverage <- UseableBP / 731622281
+par(mar=c(5,6,4,2))
+coverage
+barplot(coverage, main = "Fold Coverage", horiz = TRUE, las = 1, xlim = c(0,50))
+```
 
 
 ## Session information

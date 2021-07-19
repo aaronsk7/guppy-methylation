@@ -309,6 +309,19 @@ coverage
 barplot(coverage, main = "Fold Coverage", horiz = TRUE, las = 1, xlim = c(0,50))
 ```
 
+##Explanation of results
+These results tell us more about the quality of the sequencing/methylation profiling than methylation differences between the populations.
+
+For example, the reason why we have so many foundation reads when compared to the light conditions is a deliberate sequencing choice rather than a difference between the samples.
+This is because we are trying to achieve satisfactory coverage of the genome in order have a greater probability of finding statistically significant results in our differential methylation analysis. As we have 3 replicates of each of the light conditions and only 1 foundation sample, it is important to have a greater number of foundation reads to meet these coverage requirements (the combined total of replicate reads is how we derive our statistical power).
+
+This leads onto the differences in duplicate/unique reads between each of the light conditions and the foundation sample. The greater the number of total reads for a sample, the greater the percentage of duplicate reads for that sample. This is essentially because as we cover more of the genome in our sequencing, we are more likely to sequence regions of the genome that have already been sequenced, hence duplicate reads.
+This is likely the explanation as to why the foundation, green R1 and green R2 have more duplicate reads (they have more total reads).
+
+The charts which depict CpH methylation, mtDNA methylation, lambda phage methylation and pUC19 plasmid methylation are only controls to provide evidence that the enzymatic methyl-seq kit and sequencing process worked well. mtDNA, lambda phage DNA and CpH methylation should all have either exactly or close to 0% methylation and the pUC19 plasmid should have 100% CpG methylation. Any deviations from this in our results are due to noise/inaccuracies. Whole methylome sequencing is not perfect so we expect small noise/inaccuracies.
+
+The only one of these charts that may tell us something about differences in methylation between the light conditions and the foundation population is the chromosome 1 CpG methylation %. It is interesting that the foundation population has ~2% greater overall methylation when compared to the light condition populations. Because of this, I can't rule out your speculation that methylation is reduced in order to allow faster evolutionary divergence in these populations. From speaking to Mark a while ago about changes in overall % of chromosomal methylation due to these experimental conditions, he said he did not expect to see significant differences, rather we would find the differences at individual loci (or differentially methylated regions on chromsomes).
+
 
 ## Session information
 

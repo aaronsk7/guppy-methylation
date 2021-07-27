@@ -183,7 +183,7 @@ Here we are creating a bar chart of the R1 total reads for each sample
 
 ```{r, Total reads,fig.height=8, fig.width=8}
 par(mar=c(5,5,4,2))
-
+FQCR1$Total.Reads
 barplot(FQCR1$Total.Reads, main="Total Reads", names.arg = FQCR1$Category, horiz=TRUE, las=1)
 ```
 

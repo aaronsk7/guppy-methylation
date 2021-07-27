@@ -1,5 +1,5 @@
 ---
-title: "Methylation Main Data Analysis"
+title: "Methylation Main Data QC Analysis"
 author: "Aaron Kovacs"
 date: "`r Sys.Date()`"
 output:

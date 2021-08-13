@@ -235,18 +235,23 @@ str(lightcondition)
 
 
 ```{r, run dmrseq clear vs green}
+if(file.exists("dmrseqCvG.rds")){
+dmrseqCvG <- readRDS("dmrseqCvG.rds")
+  }else{
 #Running dmrseq and checking how much memory it is using
 Rprof(tf <- "rprof.log", memory.profiling=TRUE)
 testCovariate <- "Light"
-register(MulticoreParam(4))
+register(MulticoreParam(2))
 dmrseqCvG <- dmrseq(bs=bsdmrseq,minNumRegion = 3,minInSpan = 5,
                   cutoff = 0.05,
                   testCovariate=testCovariate)
+saveRDS(dmrseqCvG,file = "dmrseqCvG.rds")
 dmrseqCvG
 Rprof(NULL)
 summaryRprof(tf, memory = "both")
 summaryRprof(tf)
 sum(summaryRprof(tf)[[2]][,1])/60
+}
 head(dmrseqCvG)
 #Calculate the number of significant regions (based on q-value)
 sigRegions<- sum(dmrseqCvG$qval < 0.05)
@@ -256,14 +261,14 @@ sum(sigRegions$stat > 0) / length(sigRegions)
 
 makeGRangesFromGTF(
   Poecilia_reticulata.Guppy_female_1.0_MT.103.gtf,
-  level = c("genes", "transcripts"),
+  level = c("ensembl exon"),
   ignoreTxVersion = TRUE,
   .checkAgainstTxDb = FALSE
 )
 
 makeGRangesFromGFF(
   Poecilia_reticulata.Guppy_female_1.0_MT.dna_sm.toplevel_out.gff
-  level = c("genes", "transcripts"),
+  level = c("cpgplot sequence_feature"),
   ignoreTxVersion = TRUE,
   .checkAgainstTxDb = FALSE
 )

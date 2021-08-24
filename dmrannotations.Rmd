@@ -1,0 +1,100 @@
+---
+title: "dmr annotations"
+author: "Aaron Kovacs"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+theme: cosmo
+---
+
+This code is available at https://github.com/aaronsk7/guppy-methylation
+
+https://cran.r-project.org/web/packages/RCircos/vignettes/Using_RCircos.pdf
+https://bioconductor.org/packages/release/bioc/vignettes/OmicCircos/inst/doc/OmicCircos_vignette.pdf
+
+
+```{r, Load in dmrs and packages}
+library(annotatr)
+library(GenomicFeatures)
+library(BiocManager)
+library(AcidGenomes)
+library(RCircos)
+library(dplyr)
+
+
+dmrseqCvG <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqCvG.rds")
+dmrseqCvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqCvL.rds")
+dmrseqGvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqGvL.rds")
+dmrseqCvG
+dmrseqCvL
+dmrseqGvL
+```
+
+
+```{r, Load in genes and CpG islands }
+gtf <- rtracklayer::import("/mnt/data/aaron/projects/guppy-methylation/Poecilia_reticulata.Guppy_female_1.0_MT.103.gtf")
+gtf
+my_genes <- gtf[gtf$type == "gene"]
+my_genes
+mcols(my_genes) <- mcols(my_genes)[c(5,8,18)]
+my_genes
+
+
+ol <- findOverlaps(dmrseqCvG,my_genes)
+ol
+CvGgenes <- dmrseqCvG[queryHits(ol)]
+mygenesol <- my_genes[subjectHits(ol)]
+CvGgenes
+mygenesol
+CvGgenesdf <- as.data.frame(CvGgenes,row.names = 1:nrow(as.data.frame(ranges(CvGgenes))))
+head(CvGgenesdf)
+mygenesoldf <- as.data.frame(mygenesol,row.names = 1:nrow(as.data.frame(ranges(mygenesol))))
+head(mygenesoldf)
+CvGgenesdf <- cbind(CvGgenesdf,mygenesoldf[c("gene_id","gene_biotype","gene_name")])
+CvGgenesdf
+```
+
+
+```{r, Input RCircos histogram values}
+CvGgenesdf
+CvGgeneschrdf <- CvGgenesdf[grep("LG",CvGgenesdf$seqnames),]
+RCircos.histogramV <- select(CvGgeneschrdf,seqnames,start,end,gene_name,qval)
+RCircos.histogramV
+RCircos.histogramV
+names(RCircos.histogramV)[names(RCircos.histogramV) == "seqnames"] <- "Chromosome"
+names(RCircos.histogramV)[names(RCircos.histogramV) == "start"] <- "chromStart"
+names(RCircos.histogramV)[names(RCircos.histogramV) == "end"] <- "chromEnd"
+names(RCircos.histogramV)[names(RCircos.histogramV) == "gene_name"] <- "GeneName"
+names(RCircos.histogramV)[names(RCircos.histogramV) == "qval"] <- "Data"
+RCircos.histogramV
+```
+
+
+
+
+```{r, Input RCircos heatmap values}
+CvGgeneschrdf
+RCircos.heatmapV <- select(CvGgeneschrdf,seqnames,start,end,gene_name,stat)
+RCircos.heatmapV
+names(RCircos.heatmapV)[names(RCircos.heatmapV) == "seqnames"] <- "Chromosome"
+names(RCircos.heatmapV)[names(RCircos.heatmapV) == "start"] <- "chromStart"
+names(RCircos.heatmapV)[names(RCircos.heatmapV) == "end"] <- "chromEnd"
+names(RCircos.heatmapV)[names(RCircos.heatmapV) == "gene_name"] <- "GeneName"
+names(RCircos.heatmapV)[names(RCircos.heatmapV) == "stat"] <- "CvG"
+RCircos.heatmapV
+```
+
+
+
+
+```{r, ideogram data}
+
+
+```
+Need to include ideogram data (data which creates the segments)
+
+
+
+
+

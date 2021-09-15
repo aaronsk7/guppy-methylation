@@ -11,17 +11,15 @@ theme: cosmo
 This code is available at https://github.com/aaronsk7/guppy-methylation
 
 https://cran.r-project.org/web/packages/RCircos/vignettes/Using_RCircos.pdf
-https://bioconductor.org/packages/release/bioc/vignettes/OmicCircos/inst/doc/OmicCircos_vignette.pdf
+
 
 
 ```{r, Load in dmrs and packages}
-library(annotatr)
 library(GenomicFeatures)
 library(BiocManager)
-library(AcidGenomes)
 library(RCircos)
 library(dplyr)
-
+library(data.table)
 
 dmrseqCvG <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqCvG.rds")
 dmrseqCvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqCvL.rds")
@@ -39,34 +37,81 @@ my_genes <- gtf[gtf$type == "gene"]
 my_genes
 mcols(my_genes) <- mcols(my_genes)[c(5,8,18)]
 my_genes
+```
 
-
-ol <- findOverlaps(dmrseqCvG,my_genes)
-ol
-CvGgenes <- dmrseqCvG[queryHits(ol)]
-mygenesol <- my_genes[subjectHits(ol)]
+```{r, CvG gene annotations}
+ol1 <- findOverlaps(dmrseqCvG,my_genes)
+ol1
+CvGgenes <- dmrseqCvG[queryHits(ol1)]
+mygenesol1 <- my_genes[subjectHits(ol1)]
 CvGgenes
-mygenesol
+mygenesol1
 CvGgenesdf <- as.data.frame(CvGgenes,row.names = 1:nrow(as.data.frame(ranges(CvGgenes))))
 head(CvGgenesdf)
-mygenesoldf <- as.data.frame(mygenesol,row.names = 1:nrow(as.data.frame(ranges(mygenesol))))
-head(mygenesoldf)
-CvGgenesdf <- cbind(CvGgenesdf,mygenesoldf[c("gene_id","gene_biotype","gene_name")])
+mygenesoldf1 <- as.data.frame(mygenesol1,row.names = 1:nrow(as.data.frame(ranges(mygenesol1))))
+head(mygenesoldf1)
+CvGgenesdf <- cbind(CvGgenesdf,mygenesoldf1[c("gene_id","gene_biotype","gene_name")])
 CvGgenesdf
+CvGgeneschrdf <- CvGgenesdf[grep("LG",CvGgenesdf$seqnames),]
+CvGgeneschrdf
+```
+
+
+```{r, CvL gene annotations}
+ol2 <- findOverlaps(dmrseqCvL,my_genes)
+ol2
+CvLgenes <- dmrseqCvL[queryHits(ol2)]
+mygenesol2 <- my_genes[subjectHits(ol2)]
+mygenesol2
+CvLgenesdf <- as.data.frame(CvLgenes,row.names = 1:nrow(as.data.frame(ranges(CvLgenes))))
+head(CvLgenesdf)
+mygenesoldf2 <- as.data.frame(mygenesol2,row.names = 1:nrow(as.data.frame(ranges(mygenesol2))))
+head(mygenesoldf2)
+CvLgenesdf <- cbind(CvLgenesdf,mygenesoldf2[c("gene_id","gene_biotype","gene_name")])
+CvLgeneschrdf <- CvLgenesdf[grep("LG",CvLgenesdf$seqnames),]
+CvLgeneschrdf
+```
+
+
+```{r, GvL gene annotations}
+ol3 <- findOverlaps(dmrseqGvL,my_genes)
+ol3
+GvLgenes <- dmrseqGvL[queryHits(ol3)]
+mygenesol3 <- my_genes[subjectHits(ol3)]
+mygenesol3
+GvLgenesdf <- as.data.frame(GvLgenes,row.names = 1:nrow(as.data.frame(ranges(GvLgenes))))
+head(GvLgenesdf)
+mygenesoldf3 <- as.data.frame(mygenesol3,row.names = 1:nrow(as.data.frame(ranges(mygenesol3))))
+head(mygenesoldf3)
+GvLgenesdf <- cbind(GvLgenesdf,mygenesoldf3[c("gene_id","gene_biotype","gene_name")])
+GvLgeneschrdf <- GvLgenesdf[grep("LG",GvLgenesdf$seqnames),]
+GvLgeneschrdf
+```
+
+```{r, Join annotations df}
+#CvGgeneschrdf %>% left_join(CvLgeneschrdf, by = c("start","end"))
+#CvG.CvL <- merge(setDT(CvGgeneschrdf), setDT(CvLgeneschrdf), all.x = TRUE, by = c("seqnames","start","end"))
+
+```
+
+```{r, Gene label data}
+CvGgeneschrdfdmrs <- head(CvGgeneschrdf,75)
+CvGgeneschrdfdmrs
+Chr.Label.Data <- select(CvGgeneschrdfdmrs,seqnames,start,end,gene_name)
+colnames(Chr.Label.Data) <- c("Chromosome","chromStart","chromEnd","GeneName")
+Chr.Label.Data
+Chr.Label.Data <- Chr.Label.Data[-which(Chr.Label.Data$GeneName == "" | is.na(Chr.Label.Data$GeneName)), ]
+Chr.Label.Data
 ```
 
 
 ```{r, Input RCircos histogram values}
-CvGgenesdf
-CvGgeneschrdf <- CvGgenesdf[grep("LG",CvGgenesdf$seqnames),]
-RCircos.histogramV <- select(CvGgeneschrdf,seqnames,start,end,gene_name,qval)
+CvGgeneschrdf
+RCircos.histogramV <- select(CvGgeneschrdf,seqnames,start,end,pval)
 RCircos.histogramV
+RCircos.histogramV$pval <- log(RCircos.histogramV$pval)
 RCircos.histogramV
-names(RCircos.histogramV)[names(RCircos.histogramV) == "seqnames"] <- "Chromosome"
-names(RCircos.histogramV)[names(RCircos.histogramV) == "start"] <- "chromStart"
-names(RCircos.histogramV)[names(RCircos.histogramV) == "end"] <- "chromEnd"
-names(RCircos.histogramV)[names(RCircos.histogramV) == "gene_name"] <- "GeneName"
-names(RCircos.histogramV)[names(RCircos.histogramV) == "qval"] <- "Data"
+colnames(RCircos.histogramV) <- c("Chromosome","chromStart","chromEnd","Data")
 RCircos.histogramV
 ```
 
@@ -77,24 +122,106 @@ RCircos.histogramV
 CvGgeneschrdf
 RCircos.heatmapV <- select(CvGgeneschrdf,seqnames,start,end,gene_name,stat)
 RCircos.heatmapV
-names(RCircos.heatmapV)[names(RCircos.heatmapV) == "seqnames"] <- "Chromosome"
-names(RCircos.heatmapV)[names(RCircos.heatmapV) == "start"] <- "chromStart"
-names(RCircos.heatmapV)[names(RCircos.heatmapV) == "end"] <- "chromEnd"
-names(RCircos.heatmapV)[names(RCircos.heatmapV) == "gene_name"] <- "GeneName"
-names(RCircos.heatmapV)[names(RCircos.heatmapV) == "stat"] <- "CvG"
+colnames(RCircos.heatmapV) <- c("Chromosome","chromStart","chromEnd","GeneName","CvG")
 RCircos.heatmapV
 ```
 
 
 
-
-```{r, ideogram data}
-
-
-```
 Need to include ideogram data (data which creates the segments)
 
 
 
+```{r, ideogram data2}
+data(UCSC.Mouse.GRCm38.CytoBandIdeogram)
+str(UCSC.Mouse.GRCm38.CytoBandIdeogram)
+chrlen <- read.table("/mnt/data/aaron/projects/guppy-methylation/chrlen.tsv")
+str(chrlen)
+segs <- apply(X = chrlen,MARGIN = 1,FUN = function(l){
+chr <- l[1]
+len <- l[2]
+seg <- seq(1,len,1000000)
+df <- data.frame(chr,as.integer(seg),as.integer(seg+999999))
+df$band <- paste("x",1:nrow(df),sep = "")
+stain <- c("gneg","gpos")
+df$stain <- as.vector(matrix(data = stain,nrow = nrow(df),ncol = 1))
+return(df)
+})
+segs <- do.call(rbind, segs)
+colnames(segs) <- c("Chromosome","ChromStart","ChromEnd","Band","Stain")
+str(segs)
+head(segs)
+```
+
+```{r, Setup RCircos core components and Initialize Graphic Device}
+RCircos.Set.Core.Components(cyto.info = segs,tracks.inside = 4,chr.exclude = NULL,tracks.outside = 0)
+rcircos.params <- RCircos.Get.Plot.Parameters()
+rcircos.cyto <- RCircos.Get.Plot.Ideogram()
+rcircos.position <- RCircos.Get.Plot.Positions()
+out.file <- "RCircosGuppyMethylome.pdf";
+pdf(file=out.file, height=8, width=8, compress=TRUE)
+```
 
 
+
+```{r, Create RCircos plot, fig.height=8,fig.width=8}
+#Setup RCircos plot
+plot.new()
+RCircos.Set.Plot.Area()
+#Include ideogram
+RCircos.Chromosome.Ideogram.Plot()
+data(RCircos.histogramV)
+#Create Heatmap
+data(RCircos.heatmapV)
+RCircos.Heatmap.Plot(heatmap.data = head(RCircos.heatmapV,400), data.col = 5,track.num = 1,side = "in")
+#Create histogram
+RCircos.Histogram.Plot(head(RCircos.histogramV,75),data.col=4, track.num=2, side="in")
+#Include gene names and create connectors to histogram
+RCircos.Gene.Connector.Plot(genomic.data = Chr.Label.Data,track.num = 3, side = "in")
+RCircos.Gene.Name.Plot(head(Chr.Label.Data,75), name.col=4,track.num=4, side="in")
+```
+
+
+
+```{r, Read in percentage methylation for each sample}
+#read in data
+ClearR1 <- read.table("meth_data/Clear2F-R1.bam.vcf.gz.cg.bed.gz")
+#Find name of chromosome 1
+chrnames <- unique(ClearR1$V1)
+chrnames
+#Subset data for only chromosome 1 entries
+chrnames[grep("KK",chrnames,invert = TRUE)]
+#ClearR1 <- subset(ClearR1,V1 == "LG23")
+ClearR1
+
+ClearR2 <- read.table("meth_data/Clear2F-R2.bam.vcf.gz.cg.bed.gz")
+
+ClearR3 <- read.table("meth_data/Clear2F-R3.bam.vcf.gz.cg.bed.gz")
+
+Foundation <- read.table("meth_data/Foundation.bam.vcf.gz.cg.bed.gz")
+
+GreenR1 <- read.table("meth_data/Green3F-R1.bam.vcf.gz.cg.bed.gz")
+
+GreenR2 <- read.table("meth_data/Green3F-R2.bam.vcf.gz.cg.bed.gz")
+
+GreenR3 <- read.table("meth_data/Green3F-R3.bam.vcf.gz.cg.bed.gz")
+
+LilacR1 <- read.table("meth_data/Lilac4F-R1.bam.vcf.gz.cg.bed.gz")
+
+LilacR2 <- read.table("meth_data/Lilac4F-R2.bam.vcf.gz.cg.bed.gz")
+
+LilacR3 <- read.table("meth_data/Lilac4F-R3.bam.vcf.gz.cg.bed.gz")
+```
+```{r, subset samples}
+#subset samples data based on dmr locations
+subset(ClearR1, V2> & V2<6)
+
+
+```
+
+```{r, Average percent methylation for each sample}
+
+
+
+
+```

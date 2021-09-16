@@ -129,6 +129,10 @@ head(RCircos.heatmapV)
 
 
 
+Need to include ideogram data (data which creates the segments)
+
+
+
 ```{r, ideogram data2}
 data(UCSC.Mouse.GRCm38.CytoBandIdeogram)
 str(UCSC.Mouse.GRCm38.CytoBandIdeogram)
@@ -149,8 +153,6 @@ colnames(segs) <- c("Chromosome","ChromStart","ChromEnd","Band","Stain")
 str(segs)
 head(segs)
 ```
-
-
 
 ```{r, Setup RCircos core components and Initialize Graphic Device}
 RCircos.Set.Core.Components(cyto.info = segs,tracks.inside = 4,chr.exclude = NULL,tracks.outside = 0)

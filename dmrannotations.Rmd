@@ -20,7 +20,6 @@ library(BiocManager)
 library(RCircos)
 library(dplyr)
 library(data.table)
-
 dmrseqCvG <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqCvG.rds")
 dmrseqCvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqCvL.rds")
 dmrseqGvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqGvL.rds")
@@ -32,11 +31,11 @@ dmrseqGvL
 
 ```{r, Load in genes and CpG islands }
 gtf <- rtracklayer::import("/mnt/data/aaron/projects/guppy-methylation/Poecilia_reticulata.Guppy_female_1.0_MT.103.gtf")
-gtf
+head(gtf)
 my_genes <- gtf[gtf$type == "gene"]
-my_genes
+head(my_genes)
 mcols(my_genes) <- mcols(my_genes)[c(5,8,18)]
-my_genes
+head(my_genes)
 ```
 
 ```{r, CvG gene annotations}
@@ -44,16 +43,17 @@ ol1 <- findOverlaps(dmrseqCvG,my_genes)
 ol1
 CvGgenes <- dmrseqCvG[queryHits(ol1)]
 mygenesol1 <- my_genes[subjectHits(ol1)]
-CvGgenes
+head(CvGgenes)
 mygenesol1
 CvGgenesdf <- as.data.frame(CvGgenes,row.names = 1:nrow(as.data.frame(ranges(CvGgenes))))
-head(CvGgenesdf)
+str(CvGgenesdf)
 mygenesoldf1 <- as.data.frame(mygenesol1,row.names = 1:nrow(as.data.frame(ranges(mygenesol1))))
 head(mygenesoldf1)
 CvGgenesdf <- cbind(CvGgenesdf,mygenesoldf1[c("gene_id","gene_biotype","gene_name")])
-CvGgenesdf
+CvGgenesdf$seqnames <- as.character(CvGgenesdf$seqnames)
+head(CvGgenesdf)
 CvGgeneschrdf <- CvGgenesdf[grep("LG",CvGgenesdf$seqnames),]
-CvGgeneschrdf
+head(CvGgeneschrdf)
 ```
 
 
@@ -62,14 +62,15 @@ ol2 <- findOverlaps(dmrseqCvL,my_genes)
 ol2
 CvLgenes <- dmrseqCvL[queryHits(ol2)]
 mygenesol2 <- my_genes[subjectHits(ol2)]
-mygenesol2
+head(mygenesol2)
 CvLgenesdf <- as.data.frame(CvLgenes,row.names = 1:nrow(as.data.frame(ranges(CvLgenes))))
 head(CvLgenesdf)
 mygenesoldf2 <- as.data.frame(mygenesol2,row.names = 1:nrow(as.data.frame(ranges(mygenesol2))))
 head(mygenesoldf2)
 CvLgenesdf <- cbind(CvLgenesdf,mygenesoldf2[c("gene_id","gene_biotype","gene_name")])
+CvLgenesdf$seqnames <- as.character(CvLgenesdf$seqnames)
 CvLgeneschrdf <- CvLgenesdf[grep("LG",CvLgenesdf$seqnames),]
-CvLgeneschrdf
+head(CvLgeneschrdf)
 ```
 
 
@@ -78,57 +79,53 @@ ol3 <- findOverlaps(dmrseqGvL,my_genes)
 ol3
 GvLgenes <- dmrseqGvL[queryHits(ol3)]
 mygenesol3 <- my_genes[subjectHits(ol3)]
-mygenesol3
+head(mygenesol3)
 GvLgenesdf <- as.data.frame(GvLgenes,row.names = 1:nrow(as.data.frame(ranges(GvLgenes))))
 head(GvLgenesdf)
 mygenesoldf3 <- as.data.frame(mygenesol3,row.names = 1:nrow(as.data.frame(ranges(mygenesol3))))
 head(mygenesoldf3)
 GvLgenesdf <- cbind(GvLgenesdf,mygenesoldf3[c("gene_id","gene_biotype","gene_name")])
+GvLgenesdf$seqnames <- as.character(GvLgenesdf$seqnames)
 GvLgeneschrdf <- GvLgenesdf[grep("LG",GvLgenesdf$seqnames),]
-GvLgeneschrdf
+head(GvLgeneschrdf)
 ```
 
 ```{r, Join annotations df}
 #CvGgeneschrdf %>% left_join(CvLgeneschrdf, by = c("start","end"))
 #CvG.CvL <- merge(setDT(CvGgeneschrdf), setDT(CvLgeneschrdf), all.x = TRUE, by = c("seqnames","start","end"))
-
 ```
 
 ```{r, Gene label data}
 CvGgeneschrdfdmrs <- head(CvGgeneschrdf,75)
-CvGgeneschrdfdmrs
+head(CvGgeneschrdfdmrs)
 Chr.Label.Data <- select(CvGgeneschrdfdmrs,seqnames,start,end,gene_name)
 colnames(Chr.Label.Data) <- c("Chromosome","chromStart","chromEnd","GeneName")
-Chr.Label.Data
+head(Chr.Label.Data)
 Chr.Label.Data <- Chr.Label.Data[-which(Chr.Label.Data$GeneName == "" | is.na(Chr.Label.Data$GeneName)), ]
 Chr.Label.Data
 ```
 
 
 ```{r, Input RCircos histogram values}
-CvGgeneschrdf
+head(CvGgeneschrdf)
 RCircos.histogramV <- select(CvGgeneschrdf,seqnames,start,end,pval)
-RCircos.histogramV
+head(RCircos.histogramV)
 RCircos.histogramV$pval <- log(RCircos.histogramV$pval)
-RCircos.histogramV
+head(RCircos.histogramV)
 colnames(RCircos.histogramV) <- c("Chromosome","chromStart","chromEnd","Data")
-RCircos.histogramV
+head(RCircos.histogramV)
 ```
 
 
 
 
 ```{r, Input RCircos heatmap values}
-CvGgeneschrdf
+head(CvGgeneschrdf)
 RCircos.heatmapV <- select(CvGgeneschrdf,seqnames,start,end,gene_name,stat)
-RCircos.heatmapV
+head(RCircos.heatmapV)
 colnames(RCircos.heatmapV) <- c("Chromosome","chromStart","chromEnd","GeneName","CvG")
-RCircos.heatmapV
+head(RCircos.heatmapV)
 ```
-
-
-
-Need to include ideogram data (data which creates the segments)
 
 
 
@@ -153,13 +150,15 @@ str(segs)
 head(segs)
 ```
 
+
+
 ```{r, Setup RCircos core components and Initialize Graphic Device}
 RCircos.Set.Core.Components(cyto.info = segs,tracks.inside = 4,chr.exclude = NULL,tracks.outside = 0)
 rcircos.params <- RCircos.Get.Plot.Parameters()
 rcircos.cyto <- RCircos.Get.Plot.Ideogram()
 rcircos.position <- RCircos.Get.Plot.Positions()
-out.file <- "RCircosGuppyMethylome.pdf";
-pdf(file=out.file, height=8, width=8, compress=TRUE)
+#out.file <- "RCircosGuppyMethylome.pdf";
+#pdf(file=out.file, height=8, width=8, compress=TRUE)
 ```
 
 
@@ -181,47 +180,77 @@ RCircos.Gene.Connector.Plot(genomic.data = Chr.Label.Data,track.num = 3, side = 
 RCircos.Gene.Name.Plot(head(Chr.Label.Data,75), name.col=4,track.num=4, side="in")
 ```
 
-
+## Read in the methylation data from Biscuit
 
 ```{r, Read in percentage methylation for each sample}
-#read in data
 ClearR1 <- read.table("meth_data/Clear2F-R1.bam.vcf.gz.cg.bed.gz")
-#Find name of chromosome 1
-chrnames <- unique(ClearR1$V1)
-chrnames
-#Subset data for only chromosome 1 entries
-chrnames[grep("KK",chrnames,invert = TRUE)]
-#ClearR1 <- subset(ClearR1,V1 == "LG23")
-ClearR1
-
 ClearR2 <- read.table("meth_data/Clear2F-R2.bam.vcf.gz.cg.bed.gz")
-
 ClearR3 <- read.table("meth_data/Clear2F-R3.bam.vcf.gz.cg.bed.gz")
-
 Foundation <- read.table("meth_data/Foundation.bam.vcf.gz.cg.bed.gz")
-
 GreenR1 <- read.table("meth_data/Green3F-R1.bam.vcf.gz.cg.bed.gz")
-
 GreenR2 <- read.table("meth_data/Green3F-R2.bam.vcf.gz.cg.bed.gz")
-
 GreenR3 <- read.table("meth_data/Green3F-R3.bam.vcf.gz.cg.bed.gz")
-
 LilacR1 <- read.table("meth_data/Lilac4F-R1.bam.vcf.gz.cg.bed.gz")
-
 LilacR2 <- read.table("meth_data/Lilac4F-R2.bam.vcf.gz.cg.bed.gz")
-
 LilacR3 <- read.table("meth_data/Lilac4F-R3.bam.vcf.gz.cg.bed.gz")
 ```
-```{r, subset samples}
-#subset samples data based on dmr locations
-subset(ClearR1, V2> & V2<6)
 
+## Make some plots to investigate CpG methylation in DMRs
 
+```{r, subset samples,fig.height=8,fig.width=8}
+library(vioplot)
+library(beeswarm)
+dmrplots <- function(dmr){
+  dmrseqname <- dmr[1]
+  dmrstart <- dmr[2]
+  dmrend <- dmr[3]
+  
+  Foundationsub <- Foundation[which( Foundation$V1==dmrseqname & Foundation$V2>dmrstart & Foundation$V3<dmrend ),4]
+  ClearR1sub <- ClearR1[which( ClearR1$V1==dmrseqname & ClearR1$V2>dmrstart & ClearR1$V3<dmrend ),4]
+  ClearR2sub <- ClearR2[which( ClearR2$V1==dmrseqname & ClearR2$V2>dmrstart & ClearR2$V3<dmrend ),4]
+  ClearR3sub <- ClearR3[which( ClearR3$V1==dmrseqname & ClearR3$V2>dmrstart & ClearR3$V3<dmrend ),4]
+  GreenR1sub <- GreenR1[which( GreenR1$V1==dmrseqname & GreenR1$V2>dmrstart & GreenR1$V3<dmrend ),4]
+  GreenR2sub <- GreenR2[which( GreenR2$V1==dmrseqname & GreenR2$V2>dmrstart & GreenR2$V3<dmrend ),4]
+  GreenR3sub <- GreenR3[which( GreenR3$V1==dmrseqname & GreenR3$V2>dmrstart & GreenR3$V3<dmrend ),4]
+  LilacR1sub <- LilacR1[which( LilacR1$V1==dmrseqname & LilacR1$V2>dmrstart & LilacR1$V3<dmrend ),4]
+  LilacR2sub <- LilacR2[which( LilacR2$V1==dmrseqname & LilacR2$V2>dmrstart & LilacR2$V3<dmrend ),4]
+  LilacR3sub <- LilacR3[which( LilacR3$V1==dmrseqname & LilacR3$V2>dmrstart & LilacR3$V3<dmrend ),4]
+  
+  ml <- list("Foundation"=Foundationsub,
+             "ClearR1"=ClearR1sub,
+             "ClearR2"=ClearR2sub,
+             "ClearR3"=ClearR3sub,
+             "GreenR1"=GreenR1sub,
+             "GreenR2"=GreenR2sub,
+             "GreenR3"=GreenR3sub,
+             "LilacR1"=LilacR1sub,
+             "LilacR2"=LilacR2sub,
+             "LilacR3"=LilacR3sub)
+ 
+  par(mar=c(5,10,3,1))
+  vioplot(ml,horizontal=TRUE,las=1)
+  beeswarm(ml,horizontal = TRUE, las=1,pch=19,cex=0.5)
+  mlm <- unlist(lapply(ml,mean))
+  barplot(mlm,horiz=TRUE,las=1,xlim=c(min(mlm)-0.01,max(mlm)+0.01))
+}
+# test that one works
+dmr <- CvGgeneschrdf[1,,drop=TRUE]
+dmrplots(dmr)
+# with lapply
+lapply(X=1:3, function(i) {
+  dmr <- CvGgeneschrdf[i,,drop=TRUE]
+  dmrplots(dmr)
+})
+for (i in 1:3) {
+  dmr <- CvGgeneschrdf[i,,drop=TRUE]
+  dmrplots(dmr)
+}
 ```
 
-```{r, Average percent methylation for each sample}
+## Session Information
 
+For reproducibility
 
-
-
+```{r,sessioninfo}
+sessionInfo()
 ```

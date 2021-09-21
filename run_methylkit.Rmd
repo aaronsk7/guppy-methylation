@@ -140,6 +140,9 @@ myDiff25p.hyper <- getMethylDiff(myDiff,difference=5,qvalue=0.01,type="hyper")
 # get hypo methylated bases
 myDiff25p.hypo <- getMethylDiff(myDiff,difference=5,qvalue=0.01,type="hypo")
 
+# save object for later
+saveRDS(object=myDiff,file="CvG_mydiff.rds",compress="gzip")
+
 ```
 
 

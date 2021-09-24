@@ -1,0 +1,142 @@
+---
+title: "Methylation Main Data QC Analysis"
+author: "Aaron Kovacs & Mark Ziemann"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+theme: cosmo
+---
+
+This code is available at https://github.com/aaronsk7/guppy-methylation
+
+
+This script performs differential methylation analysis using MethylKit.
+
+```{r, libs,fig.height=8,fig.width=8}
+
+library("R.utils")
+library("parallel")
+
+library("reshape2")
+library("kableExtra")
+library("dplyr")
+library("RColorBrewer")
+library("GenomicRanges")
+library("limma")
+library("methylKit")
+library("gplots")
+library("seqinr")
+
+```
+
+
+## Import biscuit data with a function
+
+Define and test the function
+
+```{r, importdata}
+
+vcfz <- "meth_data/test-R1.bam.vcf.gz.cg.bed.gz"
+
+biscuit2methylkit <- function(vcfz) {
+vcf <- gsub(".gz$","",vcfz)
+gunzip(vcfz)
+tdata <- read.table(vcf)
+gzip(vcf)
+chrBase <- paste(tdata$V1,tdata$V2,sep=".")
+chr <- tdata$V1
+base <- tdata$V2
+strand="F"
+coverage <- tdata$V5
+freqC <- tdata$V4 *100 
+freqT <- 100-freqC 
+mk <- data.frame(  chrBase , chr , base, strand,  coverage, freqC, freqT )
+mk
+mkname <- paste(vcf,".mk",sep="")
+mkname <- gsub(".bam.vcf.gz.cg.bed","",mkname)
+write.table(mk,file=mkname,quote=FALSE,sep="\t",row.names = FALSE)
+}
+
+
+biscuit2methylkit(vcfz)
+getwd()
+myobj=methRead("meth_data/test-R1.mk",
+           sample.id="test1",
+           assembly="hg18",
+           treatment=1,
+           context="CpG",
+           mincov = 10 )
+myobj
+
+
+```
+
+## Now format all the data into methylkit format
+
+This might take a few minutes - get a cuppa.
+
+```{r,bigimport}
+
+basenames <- c("Clear2F-R1","Clear2F-R2","Clear2F-R3","Foundation","Green3F-R1","Green3F-R2","Green3F-R3",
+               "Lilac4F-R1","Lilac4F-R2","Lilac4F-R3")
+for (i in basenames){
+  bedgz <- gsub("$","\\.bam\\.vcf\\.gz\\.cg\\.bed\\.gz",i)
+  bedgz <- paste("meth_data/",bedgz,sep = "")
+  mk <- gsub("$","\\.mk",i)
+  mk <- paste("meth_data/",mk,sep = "")
+  message(mk)
+  if(file.exists(mk)){
+    message(paste(mk,"exists"))
+  }else{
+    biscuit2methylkit(vcfz = bedgz)  
+    }}
+
+myfiles2 <- list.files("meth_data",pattern = "mk$",full.names = TRUE)
+myfiles2
+
+
+
+AllSamples <- as.list(myfiles2[c(grep("Clear",myfiles2) , grep("Green",myfiles2), grep("Lilac",myfiles2), grep("Foundation",myfiles2))])
+AllSamples
+            
+            
+myobj <-  methRead(AllSamples,
+           sample.id = list("clear1","clear2","clear3","green1","green2","green3","Lilac1","Lilac2","Lilac3","Foundation"),
+           assembly = "hg19",
+           treatment = c(0,0,0,1,1,1,2,2,2,3),
+           context = "CpG",
+           mincov = 3 )
+
+
+```
+
+## Simple stats
+
+And prepare for differential methylation analysis.
+
+```{r,fig.height=8,fig.width=8}
+
+lapply(myobj,function(x){
+  getMethylationStats(x,plot=FALSE,both.strands=FALSE)
+  getMethylationStats(x,plot=TRUE,both.strands=FALSE)
+  getCoverageStats(x,plot=TRUE,both.strands=FALSE)
+})
+
+myobj <- filterByCoverage(myobj,lo.count=1,lo.perc=NULL,
+                                      hi.count=NULL,hi.perc=99.9)
+
+meth <- unite(myobj, destrand=FALSE)
+remove(myobj)
+head(meth)
+
+# plots
+getCorrelation(meth,plot=TRUE)
+clusterSamples(meth, dist="correlation", method="ward", plot=TRUE)
+hc = clusterSamples(meth, dist="correlation", method="ward", plot=FALSE)
+PCASamples(meth, screeplot=TRUE)
+PCASamples(meth)
+
+```
+
+

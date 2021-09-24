@@ -14,7 +14,7 @@ This code is available at https://github.com/aaronsk7/guppy-methylation
 
 In this script we are analysing fragment insert sizes and looking at average methylation in these test samples
 
-Here we are create a violin chart
+Here we create a violin chart
 
 ```{r, violin,fig.height=8,fig.width=8}
 getwd()
@@ -102,30 +102,12 @@ meth_average <- merge(meth_average, T12.F.N.bam.vcf_meth_average, all.x = TRUE, 
 meth_average <- merge(meth_average, T12.F.O.bam.vcf_meth_average, all.x = TRUE, all.y = TRUE)
 ```
 
-Here we are creating a bar chart displaying the % of R1 reads that are trimmed by skewer
-
-```{r,trimmed,fig.height=8,fig.width=8}
-#Creating subsets of the data
-GSR1 <- General.statistics[grep("R1",General.statistics$Sample.Name),]
-GSR1
-#Removing percentage from data (column 3)
-GSR1t <- as.numeric(gsub("%","",GSR1[,3]))
-GSR1t
-#Removing unnecessary part of the name and attaching it to data
-names(GSR1t) <- sapply(strsplit(GSR1$Sample.Name,"_"),"[[",1)
-
-GSR1t
-
-par(mar=c(5,5,4,2))
-
-#Barplot for %trimmed
-barplot(GSR1t, main="% Trimmed", horiz=TRUE, las=1, xlim = c(0,70))
-
-```
-
 Here we are creating a bar chart of the R1 reads displaying their %GC content
 
 ```{r,GC,fig.height=8,fig.width=8}
+#Creating subsets of the data
+GSR1 <- General.statistics[grep("R1",General.statistics$Sample.Name),]
+GSR1
 #Removing percentage from data (column 5)
 GSR1GC <- as.numeric(gsub("%","",GSR1[,5]))
 GSR1GC

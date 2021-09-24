@@ -11,7 +11,8 @@ theme: cosmo
 Testing code chunk
 
 ```{r, test}
-#library(dmrseq)
+
+library(dmrseq)
 library(BiocParallel)
 getwd()
 Test1 <- read.table("meth_data/test-R1.bam.vcf.gz.cg.bed.gz")
@@ -62,11 +63,13 @@ str(Testcomb)
 show(Testcomb)
 empty.loci.idx.test <- which(DelayedMatrixStats::rowSums2(getCoverage(Testcomb, type="Cov")==0)==0)
 Testcomb.filtered <- Testcomb[empty.loci.idx.test]
+
 ```
 
 
 
 ```{r, ClearR1}
+
 #read in data
 ClearR1 <- read.table("meth_data/Clear2F-R1.bam.vcf.gz.cg.bed.gz")
 #Find name of chromosome 1
@@ -82,34 +85,40 @@ MvaluesC1 <- ClearR1$V4 * ClearR1$V5
 #ClearR1 <- BSseq(chr = ClearR1$V1, pos = ClearR1$V2,
 #           M = as.matrix(MvaluesC1), Cov = as.matrix(ClearR1$V5),
 #            sampleNames = "ClearR1")
+
 ```
 
 
 
 ```{r, ClearR2}
-#ClearR2 <- read.table("meth_data/Clear2F-R2.bam.vcf.gz.cg.bed.gz")
+
+ClearR2 <- read.table("meth_data/Clear2F-R2.bam.vcf.gz.cg.bed.gz")
 #ClearR2 <- subset(ClearR2,V1 == "LG23")
-#ClearR2
-#MvaluesC2 <- ClearR2$V4 * ClearR2$V5
-#ClearR2 <- BSseq(chr = ClearR2$V1, pos = ClearR2$V2,
-#            M = as.matrix(MvaluesC2), Cov = as.matrix(ClearR2$V5),
-#            sampleNames = "ClearR2")
+ClearR2
+MvaluesC2 <- ClearR2$V4 * ClearR2$V5
+ClearR2 <- BSseq(chr = ClearR2$V1, pos = ClearR2$V2,
+            M = as.matrix(MvaluesC2), Cov = as.matrix(ClearR2$V5),
+            sampleNames = "ClearR2")
+
 ```
 
 
 
 ```{r, ClearR3}
-#ClearR3 <- read.table("meth_data/Clear2F-R3.bam.vcf.gz.cg.bed.gz")
+
+ClearR3 <- read.table("meth_data/Clear2F-R3.bam.vcf.gz.cg.bed.gz")
 #ClearR3 <- subset(ClearR3,V1 == "LG23")
-#MvaluesC3 <- ClearR3$V4 * ClearR3$V5
-#ClearR3 <- BSseq(chr = ClearR3$V1, pos = ClearR3$V2,
-#            M = as.matrix(MvaluesC3), Cov = as.matrix(ClearR3$V5),
-#            sampleNames = "ClearR3")
+MvaluesC3 <- ClearR3$V4 * ClearR3$V5
+ClearR3 <- BSseq(chr = ClearR3$V1, pos = ClearR3$V2,
+            M = as.matrix(MvaluesC3), Cov = as.matrix(ClearR3$V5),
+            sampleNames = "ClearR3")
+
 ```
 
 
 
 ```{r, Foundation}
+
 #Foundation <- read.table("meth_data/Foundation.bam.vcf.gz.cg.bed.gz")
 #b<-thinCounts(foundation,target.size=)
 #c<-a-b
@@ -125,11 +134,13 @@ MvaluesC1 <- ClearR1$V4 * ClearR1$V5
 #bsFoundation2 <- BSseq(chr = Foundation$V1, pos = Foundation$V2,
             #M = as.matrix(MvaluesF2), Cov = as.matrix(CovF2),
             #sampleNames = "Foundation2")
+
 ```
 
 
 
 ```{r, GreenR1}
+
 GreenR1 <- read.table("meth_data/Green3F-R1.bam.vcf.gz.cg.bed.gz")
 #GreenR1 <- subset(GreenR1,V1 == "LG23")
 MvaluesG1 <- GreenR1$V4 * GreenR1$V5
@@ -140,6 +151,7 @@ GreenR1 <- BSseq(chr = GreenR1$V1, pos = GreenR1$V2,
 
 
 ```{r, GreenR2}
+
 GreenR2 <- read.table("meth_data/Green3F-R2.bam.vcf.gz.cg.bed.gz")
 #GreenR2 <- subset(GreenR2,V1 == "LG23")
 MvaluesG2 <- GreenR2$V4 * GreenR2$V5
@@ -150,6 +162,7 @@ GreenR2 <- BSseq(chr = GreenR2$V1, pos = GreenR2$V2,
 
 
 ```{r, GreenR3}
+
 GreenR3 <- read.table("meth_data/Green3F-R3.bam.vcf.gz.cg.bed.gz")
 #GreenR3 <- subset(GreenR3,V1 == "LG23")
 MvaluesG3 <- GreenR3$V4 * GreenR3$V5
@@ -161,34 +174,41 @@ GreenR3 <- BSseq(chr = GreenR3$V1, pos = GreenR3$V2,
 
 
 ```{r, LilacR1}
-LilacR1 <- read.table("meth_data/Lilac4F-R1.bam.vcf.gz.cg.bed.gz")
-MvaluesL1 <- LilacR1$V4 * LilacR1$V5
-LilacR1 <- BSseq(chr = LilacR1$V1, pos = LilacR1$V2,
-            M = as.matrix(MvaluesL1), Cov = as.matrix(LilacR1$V5),
-            sampleNames = "LilacR1")
+
+#LilacR1 <- read.table("meth_data/Lilac4F-R1.bam.vcf.gz.cg.bed.gz")
+#MvaluesL1 <- LilacR1$V4 * LilacR1$V5
+#LilacR1 <- BSseq(chr = LilacR1$V1, pos = LilacR1$V2,
+#            M = as.matrix(MvaluesL1), Cov = as.matrix(LilacR1$V5),
+#            sampleNames = "LilacR1")
+
 ```
 
 
 ```{r, LilacR2}
-LilacR2 <- read.table("meth_data/Lilac4F-R2.bam.vcf.gz.cg.bed.gz")
-MvaluesL2 <- LilacR2$V4 * LilacR2$V5
-LilacR2 <- BSseq(chr = LilacR2$V1, pos = LilacR2$V2,
-            M = as.matrix(MvaluesL2), Cov = as.matrix(LilacR2$V5),
-            sampleNames = "LilacR2")
+
+#LilacR2 <- read.table("meth_data/Lilac4F-R2.bam.vcf.gz.cg.bed.gz")
+#MvaluesL2 <- LilacR2$V4 * LilacR2$V5
+L#ilacR2 <- BSseq(chr = LilacR2$V1, pos = LilacR2$V2,
+#            M = as.matrix(MvaluesL2), Cov = as.matrix(LilacR2$V5),
+#            sampleNames = "LilacR2")
+
 ```
 
 
 ```{r, LilacR3}
-LilacR3 <- read.table("meth_data/Lilac4F-R3.bam.vcf.gz.cg.bed.gz")
-MvaluesL3 <- LilacR3$V4 * LilacR3$V5
-LilacR3 <- BSseq(chr = LilacR3$V1, pos = LilacR3$V2,
-            M = as.matrix(MvaluesL3), Cov = as.matrix(LilacR3$V5),
-            sampleNames = "LilacR3")
+
+#LilacR3 <- read.table("meth_data/Lilac4F-R3.bam.vcf.gz.cg.bed.gz")
+#MvaluesL3 <- LilacR3$V4 * LilacR3$V5
+#LilacR3 <- BSseq(chr = LilacR3$V1, pos = LilacR3$V2,
+#            M = as.matrix(MvaluesL3), Cov = as.matrix(LilacR3$V5),
+#            sampleNames = "LilacR3")
+
 ```
 
 
 
 ```{r, Combine BSseq Objects}
+
 bsdmrseq <- combine(GreenR1, GreenR2)
 empty.loci.idx <- which(DelayedMatrixStats::rowSums2(getCoverage(bsdmrseq, type="Cov")==0)==0)
 bsdmrseq <- bsdmrseq[empty.loci.idx]
@@ -204,6 +224,7 @@ bsdmrseq <- bsdmrseq[empty.loci.idx4]
 bsdmrseq <- combine(bsdmrseq, LilacR3)
 empty.loci.idx5 <- which(DelayedMatrixStats::rowSums2(getCoverage(bsdmrseq, type="Cov")==0)==0)
 bsdmrseq <- bsdmrseq[empty.loci.idx5]
+
 ```
 
 bsdmrseq <- combine(bsClearR1, bsClearR2, bsClearR3, bsFoundation1, bsFoundation2, bsGreenR1, bsGreenR2, bsGreenR3, bsLilacR1, bsLilacR2, bsLilacR3)
@@ -223,19 +244,24 @@ bsdmrseq <- combine(bsdmrseq, LilacR3)
 
 
 ```{r, create sample metadata clear vs green}
+
 lightcondition <- c("Clear", "Clear", "Clear", "Green", "Green", "Green")
 replicates <- c("1", "2", "3", "1", "2", "3")
+
 ```
 
 ```{r, add sample metadata clear vs green}
+
 pData(bsdmrseq)$Light <- lightcondition
 pData(bsdmrseq)$Replicate <- replicates
 pData(bsdmrseq)
 str(lightcondition)
+
 ```
 
 
 ```{r, run dmrseq clear vs green}
+
 if(file.exists("dmrseqCvG.rds")){
 dmrseqCvG <- readRDS("dmrseqCvG.rds")
   }else{
@@ -258,6 +284,7 @@ head(dmrseqCvG)
 sigRegions <- sum(dmrseqCvG$qval < 0.05)
 #Calculate the proportion of significant regions in the positive direction (hyper vs hypo methylation)
 sum(sigRegions > 0) / length(sigRegions)
+
 ```
 
 

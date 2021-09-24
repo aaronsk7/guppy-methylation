@@ -1,0 +1,169 @@
+---
+title: "methylkit results analysis"
+author: "Aaron Kovacs"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+theme: cosmo
+---
+
+```{r, Read in rds files}
+
+library(GenomicFeatures)
+library(BiocManager)
+library(RCircos)
+library(dplyr)
+library(data.table)
+library(GenomicRanges)
+
+methylkitCvG <- readRDS("/mnt/data/aaron/projects/guppy-methylation/CvG_mydiff.rds")
+methylkitCvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/CvL_mydiff.rds")
+methylkitGvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/GvL_mydiff.rds")
+class(methylkitCvG)
+head(methylkitCvG)
+methylkitCvGGR <- as(methylkitCvG,"GRanges")
+methylkitCvGdf <- getData(methylkitCvG)
+methylkitCvGdf <- methylkitCvGdf[order(methylkitCvGdf[,6]), ]
+head(methylkitCvGdf)
+
+methylkitCvLGR <- as(methylkitCvL,"GRanges")
+methylkitCvLdf <- getData(methylkitCvL)
+methylkitCvLdf <- methylkitCvLdf[order(methylkitCvLdf[,6]), ]
+head(methylkitCvLdf)
+
+methylkitGvLGR <- as(methylkitGvL,"GRanges")
+methylkitGvLdf <- getData(methylkitGvL)
+methylkitGvLdf <- methylkitGvLdf[order(methylkitGvLdf[,6]), ]
+head(methylkitGvLdf,20)
+
+```
+
+
+```{r, Load in genes and CpG islands}
+
+gtf <- rtracklayer::import("/mnt/data/aaron/projects/guppy-methylation/Poecilia_reticulata.Guppy_female_1.0_MT.103.gtf")
+head(gtf)
+my_genes <- gtf[gtf$type == "gene"]
+head(my_genes)
+mcols(my_genes) <- mcols(my_genes)[c(5,8,18)]
+head(my_genes)
+
+gff <- rtracklayer::import("/mnt/data/aaron/projects/guppy-methylation/Poecilia_reticulata.Guppy_female_1.0_MT.dna_sm.toplevel_out.gff")
+head(gff,646)
+my_CpGislands <- gff[gff$type == "sequence_feature"]
+head(my_CpGislands)
+mcols(my_CpGislands) <- mcols(my_CpGislands)[c(1,5)]
+head(my_CpGislands)
+
+```
+
+
+
+
+
+
+```{r, find overlapping reads CvG}
+
+ol1 <- findOverlaps(methylkitCvGGR,my_genes)
+ol1
+CvGgenes <- methylkitCvGGR[queryHits(ol1)]
+mygenesol1 <- my_genes[subjectHits(ol1)]
+head(CvGgenes)
+mygenesol1
+
+CvGgenesdf <- as.data.frame(CvGgenes,row.names = 1:nrow(as.data.frame(ranges(CvGgenes))))
+str(CvGgenesdf)
+mygenesoldf1 <- as.data.frame(mygenesol1,row.names = 1:nrow(as.data.frame(ranges(mygenesol1))))
+head(mygenesoldf1)
+CvGgenesdf <- cbind(CvGgenesdf,mygenesoldf1[c("gene_id","gene_biotype","gene_name")])
+CvGgenesdf$seqnames <- as.character(CvGgenesdf$seqnames)
+head(CvGgenesdf)
+CvGgeneschrdf <- CvGgenesdf[grep("LG",CvGgenesdf$seqnames),]
+head(CvGgeneschrdf)
+CvGgeneschrdf <- CvGgeneschrdf[order(CvGgeneschrdf[,7]), ]
+head(CvGgeneschrdf,10)
+
+
+```
+
+
+
+
+
+
+
+```{r, find overlapping reads CvL}
+
+ol1 <- findOverlaps(methylkitCvLGR,my_genes)
+ol1
+CvLgenes <- methylkitCvLGR[queryHits(ol1)]
+mygenesol1 <- my_genes[subjectHits(ol1)]
+head(CvLgenes)
+mygenesol1
+
+CvLgenesdf <- as.data.frame(CvLgenes,row.names = 1:nrow(as.data.frame(ranges(CvLgenes))))
+str(CvLgenesdf)
+mygenesoldf1 <- as.data.frame(mygenesol1,row.names = 1:nrow(as.data.frame(ranges(mygenesol1))))
+head(mygenesoldf1)
+CvLgenesdf <- cbind(CvLgenesdf,mygenesoldf1[c("gene_id","gene_biotype","gene_name")])
+CvLgenesdf$seqnames <- as.character(CvLgenesdf$seqnames)
+head(CvLgenesdf)
+CvLgeneschrdf <- CvLgenesdf[grep("LG",CvLgenesdf$seqnames),]
+head(CvLgeneschrdf)
+CvLgeneschrdf <- CvLgeneschrdf[order(CvLgeneschrdf[,7]), ]
+head(CvLgeneschrdf,10)
+
+```
+
+
+
+
+```{r, find overlapping reads GvL}
+
+ol1 <- findOverlaps(methylkitGvLGR,my_genes)
+ol1
+GvLgenes <- methylkitGvLGR[queryHits(ol1)]
+mygenesol1 <- my_genes[subjectHits(ol1)]
+head(GvLgenes)
+mygenesol1
+
+GvLgenesdf <- as.data.frame(GvLgenes,row.names = 1:nrow(as.data.frame(ranges(GvLgenes))))
+str(GvLgenesdf)
+mygenesoldf1 <- as.data.frame(mygenesol1,row.names = 1:nrow(as.data.frame(ranges(mygenesol1))))
+head(mygenesoldf1)
+GvLgenesdf <- cbind(GvLgenesdf,mygenesoldf1[c("gene_id","gene_biotype","gene_name")])
+GvLgenesdf$seqnames <- as.character(GvLgenesdf$seqnames)
+head(GvLgenesdf)
+GvLgeneschrdf <- GvLgenesdf[grep("LG",GvLgenesdf$seqnames),]
+head(GvLgeneschrdf)
+GvLgeneschrdf <- GvLgeneschrdf[order(GvLgeneschrdf[,7]), ]
+head(GvLgeneschrdf,10)
+
+```
+
+
+
+```{r, find overlapping reads CvG}
+
+ol1 <- findOverlaps(methylkitCvGGR,my_CpGislands)
+ol1
+CvGCpGislands <- methylkitCvGGR[queryHits(ol1)]
+my_CpGislandsol1 <- my_CpGislands[subjectHits(ol1)]
+head(CvGCpGislands)
+my_CpGislandsol1
+
+CvGCpGislandsdf <- as.data.frame(CvGCpGislands,row.names = 1:nrow(as.data.frame(ranges(CvGCpGislands))))
+str(CvGCpGislandsdf)
+my_CpGislandsol1 <- as.data.frame(my_CpGislandsol1,row.names = 1:nrow(as.data.frame(ranges(my_CpGislandsol1))))
+head(my_CpGislandsol1)
+CvGCpGislandsdf <- cbind(CvGCpGislandsdf,my_CpGislandsol1[c("source","ID")])
+CvGCpGislandsdf$seqnames <- as.character(CvGCpGislandsdf$seqnames)
+head(CvGCpGislandsdf)
+CvGCpGislandschrdf <- CvGCpGislandsdf[grep("LG",CvGCpGislandsdf$seqnames),]
+head(CvGCpGislandschrdf)
+CvGCpGislandschrdf <- CvGCpGislandschrdf[order(CvGCpGislandschrdf[,7]), ]
+head(CvGCpGislandschrdf,10)
+
+
+```

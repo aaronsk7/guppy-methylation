@@ -50,7 +50,7 @@ mcols(my_genes) <- mcols(my_genes)[c(5,8,18)]
 head(my_genes)
 
 gff <- rtracklayer::import("/mnt/data/aaron/projects/guppy-methylation/Poecilia_reticulata.Guppy_female_1.0_MT.dna_sm.toplevel_out.gff")
-head(gff,646)
+head(gff)
 my_CpGislands <- gff[gff$type == "sequence_feature"]
 head(my_CpGislands)
 mcols(my_CpGislands) <- mcols(my_CpGislands)[c(1,5)]
@@ -63,7 +63,7 @@ head(my_CpGislands)
 
 
 
-```{r, find overlapping reads CvG}
+```{r, CvG gene annotations}
 
 ol1 <- findOverlaps(methylkitCvGGR,my_genes)
 ol1
@@ -93,7 +93,7 @@ head(CvGgeneschrdf,10)
 
 
 
-```{r, find overlapping reads CvL}
+```{r, CvL gene annotations}
 
 ol1 <- findOverlaps(methylkitCvLGR,my_genes)
 ol1
@@ -119,7 +119,7 @@ head(CvLgeneschrdf,10)
 
 
 
-```{r, find overlapping reads GvL}
+```{r, GvL gene annotations}
 
 ol1 <- findOverlaps(methylkitGvLGR,my_genes)
 ol1
@@ -144,7 +144,7 @@ head(GvLgeneschrdf,10)
 
 
 
-```{r, find overlapping reads CvG}
+```{r, CvG CpG island annotations}
 
 ol1 <- findOverlaps(methylkitCvGGR,my_CpGislands)
 ol1
@@ -165,5 +165,53 @@ head(CvGCpGislandschrdf)
 CvGCpGislandschrdf <- CvGCpGislandschrdf[order(CvGCpGislandschrdf[,7]), ]
 head(CvGCpGislandschrdf,10)
 
+```
+
+```{r, CvL CpG island annotations}
+
+ol1 <- findOverlaps(methylkitCvLGR,my_CpGislands)
+ol1
+CvLCpGislands <- methylkitCvLGR[queryHits(ol1)]
+my_CpGislandsol1 <- my_CpGislands[subjectHits(ol1)]
+head(CvLCpGislands)
+my_CpGislandsol1
+
+CvLCpGislandsdf <- as.data.frame(CvLCpGislands,row.names = 1:nrow(as.data.frame(ranges(CvLCpGislands))))
+str(CvLCpGislandsdf)
+my_CpGislandsol1 <- as.data.frame(my_CpGislandsol1,row.names = 1:nrow(as.data.frame(ranges(my_CpGislandsol1))))
+head(my_CpGislandsol1)
+CvLCpGislandsdf <- cbind(CvLCpGislandsdf,my_CpGislandsol1[c("source","ID")])
+CvLCpGislandsdf$seqnames <- as.character(CvLCpGislandsdf$seqnames)
+head(CvLCpGislandsdf)
+CvLCpGislandschrdf <- CvLCpGislandsdf[grep("LG",CvLCpGislandsdf$seqnames),]
+head(CvLCpGislandschrdf)
+CvLCpGislandschrdf <- CvLCpGislandschrdf[order(CvLCpGislandschrdf[,7]), ]
+head(CvLCpGislandschrdf,10)
 
 ```
+
+
+```{r, GvL CpG island annotations}
+
+ol1 <- findOverlaps(methylkitGvLGR,my_CpGislands)
+ol1
+GvLCpGislands <- methylkitGvLGR[queryHits(ol1)]
+my_CpGislandsol1 <- my_CpGislands[subjectHits(ol1)]
+head(GvLCpGislands)
+my_CpGislandsol1
+
+GvLCpGislandsdf <- as.data.frame(GvLCpGislands,row.names = 1:nrow(as.data.frame(ranges(GvLCpGislands))))
+str(CvGCpGislandsdf)
+my_CpGislandsol1 <- as.data.frame(my_CpGislandsol1,row.names = 1:nrow(as.data.frame(ranges(my_CpGislandsol1))))
+head(my_CpGislandsol1)
+GvLCpGislandsdf <- cbind(GvLCpGislandsdf,my_CpGislandsol1[c("source","ID")])
+GvLCpGislandsdf$seqnames <- as.character(GvLCpGislandsdf$seqnames)
+head(GvLCpGislandsdf)
+GvLCpGislandschrdf <- GvLCpGislandsdf[grep("LG",GvLCpGislandsdf$seqnames),]
+head(GvLCpGislandschrdf)
+GvLCpGislandschrdf <- GvLCpGislandschrdf[order(GvLCpGislandschrdf[,7]), ]
+head(GvLCpGislandschrdf,10)
+
+```
+
+

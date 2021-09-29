@@ -104,7 +104,7 @@ AllSamples
 myobj <-  methRead(AllSamples,
            sample.id = list("clear1","clear2","clear3","green1","green2","green3","Lilac1","Lilac2","Lilac3","Foundation"),
            assembly = "hg19",
-           treatment = c(0,0,0,1,1,1,2,2,2,3),
+           treatment = c(0,0,0,0,0,1,1,1,1,1),
            context = "CpG",
            mincov = 3 )
 

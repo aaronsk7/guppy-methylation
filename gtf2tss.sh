@@ -2,7 +2,7 @@
 
 GTF=Poecilia_reticulata.Guppy_female_1.0_MT.103.gtf
 G=Poecilia_reticulata.Guppy_female_1.0_MT.dna_sm.toplevel.fa.g
-OUT=Poecilia_reticulata.Guppy_female_1.0_MT.103_tss.gtf
+OUT=Poecilia_reticulata.Guppy_female_1.0_MT.103_tss.bed
 
 grep -w 'exon_number "1"' $GTF \
 | awk '$7=="+"' \

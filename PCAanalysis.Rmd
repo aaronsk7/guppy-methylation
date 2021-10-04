@@ -19,7 +19,7 @@ library("R.utils")
 library("parallel")
 
 library("reshape2")
-library("kableExtra")
+# library("kableExtra") having some trouble installing dependancies on bio2
 library("dplyr")
 library("RColorBrewer")
 library("GenomicRanges")
@@ -126,6 +126,7 @@ lapply(myobj,function(x){
 myobj <- filterByCoverage(myobj,lo.count=1,lo.perc=NULL,
                                       hi.count=NULL,hi.perc=99.9)
 
+tiles <- tileMethylCounts(myobj,win.size=1000,step.size=1000,cov.bases = 10)
 meth <- unite(myobj, destrand=FALSE)
 remove(myobj)
 head(meth)
@@ -140,3 +141,44 @@ PCASamples(meth)
 ```
 
 
+## Correlation heatmap
+
+```{r,cor}
+
+perc <- percMethylation(meth)
+heatmap.2(cor(perc,method="pearson"),trace="none",scale="none",margins=c(7,7),main="Pearson")
+heatmap.2(cor(perc,method="spearman"),trace="none",scale="none",margins=c(7,7),main="Spearman")
+
+```
+
+## Aggregate to 1kbp tiles
+
+```{r,tiles1}
+
+#tiles <- tileMethylCounts(myobj,win.size=1000,step.size=1000,cov.bases = 10)
+tiles <- unite(tiles, destrand=FALSE)
+head(tiles)
+
+getCorrelation(tiles,plot=TRUE)
+clusterSamples(tiles, dist="correlation", method="ward", plot=TRUE)
+hc = clusterSamples(tiles, dist="correlation", method="ward", plot=FALSE)
+PCASamples(tiles, screeplot=TRUE)
+PCASamples(tiles)
+
+perc <- percMethylation(tiles)
+heatmap.2(cor(perc,method="pearson"),trace="none",scale="none",margins=c(7,7),main="Pearson")
+heatmap.2(cor(perc,method="spearman"),trace="none",scale="none",margins=c(7,7),main="Spearman")
+
+
+```
+
+## Session information
+
+For reproducibility
+
+```{r,sessioninfo}
+
+sessionInfo()
+
+
+```

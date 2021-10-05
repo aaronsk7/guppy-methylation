@@ -5,6 +5,8 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
+    fig_width: 7
+    fig_height: 7
 theme: cosmo
 ---
 
@@ -13,7 +15,7 @@ This code is available at https://github.com/aaronsk7/guppy-methylation
 
 This script performs differential methylation analysis using MethylKit.
 
-```{r, libs,fig.height=8,fig.width=8}
+```{r, libs, fig.height=7,fig.height=7}
 
 library("R.utils")
 library("parallel")
@@ -35,7 +37,7 @@ library("seqinr")
 
 Define and test the function
 
-```{r, importdata}
+```{r, importdata, fig.height=7,fig.height=7}
 
 vcfz <- "meth_data/test-R1.bam.vcf.gz.cg.bed.gz"
 
@@ -76,7 +78,7 @@ myobj
 
 This might take a few minutes - get a cuppa.
 
-```{r,bigimport}
+```{r,bigimport, fig.height=7,fig.height=7}
 
 basenames <- c("Clear2F-R1","Clear2F-R2","Clear2F-R3","Foundation","Green3F-R1","Green3F-R2","Green3F-R3",
                "Lilac4F-R1","Lilac4F-R2","Lilac4F-R3")
@@ -115,7 +117,7 @@ myobj <-  methRead(AllSamples,
 
 And prepare for differential methylation analysis.
 
-```{r,fig.height=8,fig.width=8}
+```{r,simple, fig.height=7,fig.height=7}
 
 lapply(myobj,function(x){
   getMethylationStats(x,plot=FALSE,both.strands=FALSE)
@@ -143,7 +145,7 @@ PCASamples(meth)
 
 ## Correlation heatmap
 
-```{r,cor}
+```{r,cor, fig.height=7,fig.height=7}
 
 perc <- percMethylation(meth)
 heatmap.2(cor(perc,method="pearson"),trace="none",scale="none",margins=c(7,7),main="Pearson")
@@ -153,7 +155,7 @@ heatmap.2(cor(perc,method="spearman"),trace="none",scale="none",margins=c(7,7),m
 
 ## Aggregate to 1kbp tiles
 
-```{r,tiles1}
+```{r,tiles1, fig.height=7,fig.height=7}
 
 #tiles <- tileMethylCounts(myobj,win.size=1000,step.size=1000,cov.bases = 10)
 tiles <- unite(tiles, destrand=FALSE)

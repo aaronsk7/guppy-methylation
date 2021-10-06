@@ -76,7 +76,7 @@ myobj
 
 This might take a few minutes - get a cuppa.
 
-```{r,bigimport}
+```{r, bigimport}
 
 basenames <- c("Clear2F-R1","Clear2F-R2","Clear2F-R3","Foundation","Green3F-R1","Green3F-R2","Green3F-R3",
                "Lilac4F-R1","Lilac4F-R2","Lilac4F-R3")

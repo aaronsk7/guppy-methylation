@@ -19,7 +19,6 @@ This script performs differential methylation analysis using MethylKit.
 
 library("R.utils")
 library("parallel")
-
 library("reshape2")
 # library("kableExtra") having some trouble installing dependancies on bio2
 library("dplyr")
@@ -40,7 +39,6 @@ Define and test the function
 ```{r, importdata, fig.height=7,fig.height=7}
 
 vcfz <- "meth_data/test-R1.bam.vcf.gz.cg.bed.gz"
-
 biscuit2methylkit <- function(vcfz) {
 vcf <- gsub(".gz$","",vcfz)
 gunzip(vcfz)
@@ -59,8 +57,6 @@ mkname <- paste(vcf,".mk",sep="")
 mkname <- gsub(".bam.vcf.gz.cg.bed","",mkname)
 write.table(mk,file=mkname,quote=FALSE,sep="\t",row.names = FALSE)
 }
-
-
 biscuit2methylkit(vcfz)
 getwd()
 myobj=methRead("meth_data/test-R1.mk",
@@ -71,18 +67,13 @@ myobj=methRead("meth_data/test-R1.mk",
            mincov = 10 )
 myobj
 
-
 ```
 
 ## Now format all the data into methylkit format
 
 This might take a few minutes - get a cuppa.
 
-<<<<<<< HEAD
-```{r, bigimport}
-=======
 ```{r,bigimport, fig.height=7,fig.height=7}
->>>>>>> eb958251b40baa628624ed45a395699a33515374
 
 basenames <- c("Clear2F-R1","Clear2F-R2","Clear2F-R3","Foundation","Green3F-R1","Green3F-R2","Green3F-R3",
                "Lilac4F-R1","Lilac4F-R2","Lilac4F-R3")
@@ -97,12 +88,8 @@ for (i in basenames){
   }else{
     biscuit2methylkit(vcfz = bedgz)  
     }}
-
 myfiles2 <- list.files("meth_data",pattern = "mk$",full.names = TRUE)
 myfiles2
-
-
-
 AllSamples <- as.list(myfiles2[c(grep("Clear",myfiles2) , grep("Green",myfiles2), grep("Lilac",myfiles2), grep("Foundation",myfiles2))])
 AllSamples
             
@@ -113,7 +100,6 @@ myobj <-  methRead(AllSamples,
            treatment = c(0,0,0,0,0,1,1,1,1,1),
            context = "CpG",
            mincov = 3 )
-
 
 ```
 
@@ -128,15 +114,12 @@ lapply(myobj,function(x){
   getMethylationStats(x,plot=TRUE,both.strands=FALSE)
   getCoverageStats(x,plot=TRUE,both.strands=FALSE)
 })
-
 myobj <- filterByCoverage(myobj,lo.count=1,lo.perc=NULL,
                                       hi.count=NULL,hi.perc=99.9)
-
 tiles <- tileMethylCounts(myobj,win.size=1000,step.size=1000,cov.bases = 10)
 meth <- unite(myobj, destrand=FALSE)
 remove(myobj)
 head(meth)
-
 # plots
 getCorrelation(meth,plot=TRUE)
 clusterSamples(meth, dist="correlation", method="ward", plot=TRUE)
@@ -164,17 +147,14 @@ heatmap.2(cor(perc,method="spearman"),trace="none",scale="none",margins=c(7,7),m
 #tiles <- tileMethylCounts(myobj,win.size=1000,step.size=1000,cov.bases = 10)
 tiles <- unite(tiles, destrand=FALSE)
 head(tiles)
-
 getCorrelation(tiles,plot=TRUE)
 clusterSamples(tiles, dist="correlation", method="ward", plot=TRUE)
 hc = clusterSamples(tiles, dist="correlation", method="ward", plot=FALSE)
 PCASamples(tiles, screeplot=TRUE)
 PCASamples(tiles)
-
 perc <- percMethylation(tiles)
 heatmap.2(cor(perc,method="pearson"),trace="none",scale="none",margins=c(7,7),main="Pearson")
 heatmap.2(cor(perc,method="spearman"),trace="none",scale="none",margins=c(7,7),main="Spearman")
-
 
 ```
 
@@ -185,6 +165,5 @@ For reproducibility
 ```{r,sessioninfo}
 
 sessionInfo()
-
 
 ```

@@ -1,0 +1,104 @@
+---
+title: "Enrichment Analysis"
+author: "Aaron Kovacs & Mark Ziemann"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    fig_width: 7
+    fig_height: 7
+theme: cosmo
+---
+
+## Introduction
+
+This code is available at https://github.com/aaronsk7/guppy-methylation
+
+This script performs enrichment analysis of methylkit results.
+
+```{r, libs, fig.height=7,fig.height=7}
+
+library("R.utils")
+library("parallel")
+library("reshape2")
+library("kableExtra")
+library("dplyr")
+library("RColorBrewer")
+library("GenomicRanges")
+library("limma")
+library("methylKit")
+library("gplots")
+library("seqinr")
+library("mitch")
+
+```
+
+
+## Import methylation data
+
+Import promoter differential methylation data.
+
+Import the gene sets.
+
+```{r, importdata, fig.height=7,fig.height=7}
+
+p <- readRDS("CvGtiles_genepromoters.rds")
+head(p)
+
+```
+
+## Import gene ontology data
+
+Downloaded from ensembl biomart on 8th October 2021.
+http://www.ensembl.org/biomart/martview/98242811709db7335e2470900eef0f89
+
+```{r,go}
+
+#go <- read.table("mart_export.txt.gz",fill=TRUE,sep="\t")
+go <- readLines("mart_export.txt.gz")
+#go <- head(go,1000)
+gol <- (strsplit(go,"\t"))
+godf <- do.call(rbind,gol)
+colnames(godf) <- godf[1,]
+godf <- godf[2:nrow(godf),]
+gos <- unique(godf[,"GO term accession"])
+mysets <- lapply(gos,function(x) { unique(godf[which(x == godf[,"GO term accession"]),1])  } )
+mynames <- sapply(gos,function(x) { unname(godf[head(which(x == godf[,"GO term accession"] ),1),"GO term name"] ) } )
+mynames <- paste(gos,mynames)
+names(mysets) <- mynames
+head(mysets)
+
+```
+
+## Now format the methylation data for mitch
+
+This might take a few minutes - get a cuppa.
+
+```{r,mitch1}
+
+p$score <- sign(p$meth.diff)/-log(p$pvalue)
+p[is.na(p$score),"score"] <- 0
+pp <- p[,c("gene_id","score")]
+pp <- subset(pp, !duplicated(pp$gene_id))
+rownames(pp) <- pp$gene_id
+pp$gene_id=NULL
+head(pp)
+
+res <- mitch_calc(x=pp,genesets=mysets,resrows=50)
+
+head(res$enrichment_result,50)
+mitch_plots(res,outfile="mitch_plots.pdf")
+unlink("mitch_report.html")
+#mitch_report(res,outfile="mitch_report.html")
+
+```
+
+## Session information
+
+For reproducibility
+
+```{r,sessioninfo}
+
+sessionInfo()
+
+```

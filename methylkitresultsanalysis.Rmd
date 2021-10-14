@@ -624,7 +624,7 @@ head(segs)
 ```
 
 
-```{r, Setup RCircos core components and Initialize Graphic Device GvL}
+```{r, Setup RCircos core components and Initialize Graphic Device GvL1}
 
 RCircos.Set.Core.Components(cyto.info = segs,tracks.inside = 4,chr.exclude = NULL,tracks.outside = 0)
 rcircos.params <- RCircos.Get.Plot.Parameters()
@@ -702,7 +702,7 @@ head(RCircos.heatmapV)
 ```
 
 
-```{r, Setup RCircos core components and Initialize Graphic Device GvL}
+```{r, Setup RCircos core components and Initialize Graphic Device GvL2}
 
 RCircos.Set.Core.Components(cyto.info = segs,tracks.inside = 4,chr.exclude = NULL,tracks.outside = 0)
 rcircos.params <- RCircos.Get.Plot.Parameters()
@@ -785,7 +785,7 @@ head(RCircos.heatmapV)
 
 
 
-```{r, Setup RCircos core components and Initialize Graphic Device GvL}
+```{r, Setup RCircos core components and Initialize Graphic Device GvL3}
 
 RCircos.Set.Core.Components(cyto.info = segs,tracks.inside = 4,chr.exclude = NULL,tracks.outside = 0)
 rcircos.params <- RCircos.Get.Plot.Parameters()
@@ -1006,26 +1006,39 @@ lapply(X=1:10, function(i) {
 ```
 
 
-```{r, gene histogram}
+```{r, gene histogram,fig.width=7,fig.height=7}
 
 head(CvGpromoterschrdf)
-CvGup <- subset(CvGpromoterschrdf,qvalue<0.05&meth.diff>0)
-CvGupT <- table(CvGup$gene_name)
-CvGupT <- CvGupT[which(names(CvGupT) !="uncharacterised")]
-head(CvGupT[order(-CvGupT)],20)
-CvGupTnames <- names(head(CvGupT[order(-CvGupT)],20))
 
-CvGdown <- subset(CvGpromoterschrdf,qvalue<0.05&meth.diff<0)
-CvGdownT <- table(CvGdown$gene_name)
-CvGdownT <- CvGdownT[which(names(CvGdownT) !="uncharacterised")]
-head(CvGdownT[order(-CvGdownT)],20)
-CvGdownTnames <- names(head(CvGdownT[order(-CvGdownT)],20))
-gn <- union(CvGupTnames,CvGdownTnames)
-sapply(gn, function(g){
-  up <- CvGupT[which(names(CvGupT)%in%g)]
-  down <- CvGdownT[which(names(CvGdownT)%in%g)]
-  return(c(up,down))
-})
+m <- CvGpromoterschrdf
+
+genes <- unique(paste(CvGpromoterschrdf$gene_id,CvGpromoterschrdf$gene_name))
+up <- subset(m, qvalue<0.05 & meth.diff > 0)
+dn <- subset(m, qvalue<0.05 & meth.diff < 0)
+
+cnt <- t(sapply(genes,function(g) {
+  id <- sapply(strsplit(g," "),"[[",1)
+  up_n <- length(which(up$gene_id==id))
+  dn_n <- length(which(dn$gene_id==id))
+  return(c(up_n,dn_n))
+}))
+colnames(cnt) <- c("up","down")
+head(cnt[order(-cnt[,1]),],20)
+head(cnt[order(-cnt[,2]),],20)
+
+x <- rbind(head(cnt[order(-cnt[,1]),],20) , tail(cnt[order(cnt[,2]),],20))
+x
+
+x[,2] <- x[,2] * -1
+x <- x[nrow(x):1,]
+
+xmax=max(x)
+xmin=min(x)
+
+par(mar=c(5,15,3,1))
+barplot(x[,1],horiz=TRUE,las=1,xlim=c(xmin,xmax),cex.names=0.75,col="pink")
+barplot(x[,2], horiz=TRUE,las=1,xlim=c(xmin,xmax),cex.names=0.75, col="lightblue",add=T, xaxt='n')
+
 
 ```
 

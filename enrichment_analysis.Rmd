@@ -5,8 +5,9 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
+    toc_float: true
     fig_width: 7
-    fig_height: 7
+    fig_height: 5
 theme: cosmo
 ---
 
@@ -15,6 +16,8 @@ theme: cosmo
 This code is available at https://github.com/aaronsk7/guppy-methylation
 
 This script performs enrichment analysis of methylkit results.
+
+## Load in packages
 
 ```{r, libs, fig.height=7,fig.height=7}
 
@@ -30,6 +33,11 @@ library("methylKit")
 library("gplots")
 library("seqinr")
 library("mitch")
+library("getDEE2") 
+library("DESeq2")
+library("clusterProfiler")
+library("eulerr")
+
 
 ```
 
@@ -42,8 +50,12 @@ Import the gene sets.
 
 ```{r, importdata, fig.height=7,fig.height=7}
 
-p <- readRDS("CvGtiles_genepromoters.rds")
-head(p)
+CvG <- readRDS("CvGtiles_genepromoters.rds")
+CvL <- readRDS("CvLtiles_genepromoters.rds")
+GvL <- readRDS("GvLtiles_genepromoters.rds")
+head(CvG)
+head(CvL)
+head(GvL)
 
 ```
 
@@ -57,7 +69,9 @@ http://www.ensembl.org/biomart/martview/98242811709db7335e2470900eef0f89
 #go <- read.table("mart_export.txt.gz",fill=TRUE,sep="\t")
 go <- readLines("mart_export.txt.gz")
 #go <- head(go,1000)
+head(go)
 gol <- (strsplit(go,"\t"))
+head(gol)
 godf <- do.call(rbind,gol)
 colnames(godf) <- godf[1,]
 godf <- godf[2:nrow(godf),]
@@ -70,15 +84,15 @@ head(mysets)
 
 ```
 
-## Now format the methylation data for mitch
+## Now format the methylation data for and run mitch
 
 This might take a few minutes - get a cuppa.
 
-```{r,mitch1}
+```{r,mitch CvG}
 
-p$score <- sign(p$meth.diff)/-log(p$pvalue)
-p[is.na(p$score),"score"] <- 0
-pp <- p[,c("gene_id","score")]
+CvG$score <- sign(CvG$meth.diff)/-log(CvG$pvalue)
+CvG[is.na(CvG$score),"score"] <- 0
+pp <- CvG[,c("gene_id","score")]
 pp <- subset(pp, !duplicated(pp$gene_id))
 rownames(pp) <- pp$gene_id
 pp$gene_id=NULL
@@ -92,6 +106,255 @@ unlink("mitch_report.html")
 #mitch_report(res,outfile="mitch_report.html")
 
 ```
+
+
+```{r,mitch CvL}
+
+CvL$score <- sign(CvL$meth.diff)/-log(CvL$pvalue)
+CvL[is.na(CvL$score),"score"] <- 0
+pp <- CvL[,c("gene_id","score")]
+pp <- subset(pp, !duplicated(pp$gene_id))
+rownames(pp) <- pp$gene_id
+pp$gene_id=NULL
+head(pp)
+
+res <- mitch_calc(x=pp,genesets=mysets,resrows=50)
+
+head(res$enrichment_result,50)
+mitch_plots(res,outfile="mitch_plots.pdf")
+unlink("mitch_report.html")
+#mitch_report(res,outfile="mitch_report.html")
+
+```
+
+
+```{r,mitch GvL}
+
+GvL$score <- sign(GvL$meth.diff)/-log(GvL$pvalue)
+GvL[is.na(GvL$score),"score"] <- 0
+pp <- GvL[,c("gene_id","score")]
+pp <- subset(pp, !duplicated(pp$gene_id))
+rownames(pp) <- pp$gene_id
+pp$gene_id=NULL
+head(pp)
+
+res <- mitch_calc(x=pp,genesets=mysets,resrows=50)
+
+head(res$enrichment_result,50)
+mitch_plots(res,outfile="mitch_plots.pdf")
+unlink("mitch_report.html")
+#mitch_report(res,outfile="mitch_report.html")
+
+```
+
+## Now run cluster profiler over representation analysis
+
+```{r,cp CvG}
+
+library(reshape2)
+
+head(mysets)
+mysetsdf <- melt(mysets)
+head(mysetsdf)
+mysetsdf <-mysetsdf[,c(2,1)]
+head(mysetsdf)
+
+CvG_up <- subset(CvG,meth.diff>0&qvalue<0.05)
+CvG_up <- unique(CvG_up$gene_id)
+str(CvG_up)
+
+CvG_dn <- subset(CvG,meth.diff<0&qvalue<0.05)
+CvG_dn <- unique(CvG_dn$gene_id)
+str(CvG_dn)
+
+CvG_bg <- unique(CvG$gene_id)
+str(CvG_bg)
+
+str(mysets)
+
+c_up <- enricher(gene = CvG_up, universe = CvG_bg, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_up,20)
+       
+c_dn <- enricher(gene = CvG_dn, universe = CvG_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_dn,20)
+
+CvGunion <- union(CvG_up,CvG_dn)
+
+c_union <- enricher(gene = CvGunion, universe = CvG_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_union,20)
+
+
+```
+
+
+
+```{r,cp CvG2}
+
+library(reshape2)
+
+
+CvG_up <- subset(CvG,meth.diff>0&qvalue<0.001)
+CvG_up <- unique(CvG_up$gene_id)
+str(CvG_up)
+
+CvG_dn <- subset(CvG,meth.diff<0&qvalue<0.001)
+CvG_dn <- unique(CvG_dn$gene_id)
+str(CvG_dn)
+
+CvG_bg <- unique(CvG$gene_id)
+str(CvG_bg)
+
+str(mysets)
+
+c_up <- enricher(gene = CvG_up, universe = CvG_bg, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_up,20)
+       
+c_dn <- enricher(gene = CvG_dn, universe = CvG_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_dn,20)
+
+CvGunion <- union(CvG_up,CvG_dn)
+
+c_union <- enricher(gene = CvGunion, universe = CvG_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_union,20)
+
+
+```
+
+
+
+```{r,cp CvL}
+
+library(reshape2)
+
+
+CvL_up <- subset(CvL,meth.diff>0&qvalue<0.05)
+CvL_up <- unique(CvL_up$gene_id)
+str(CvL_up)
+
+CvL_dn <- subset(CvL,meth.diff<0&qvalue<0.05)
+CvL_dn <- unique(CvL_dn$gene_id)
+str(CvL_dn)
+
+CvL_bg <- unique(CvL$gene_id)
+str(CvL_bg)
+
+str(mysets)
+
+c_up <- enricher(gene = CvL_up, universe = CvL_bg, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_up,20)
+       
+c_dn <- enricher(gene = CvL_dn, universe = CvL_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_dn,20)
+
+CvLunion <- union(CvL_up,CvL_dn)
+
+c_union <- enricher(gene = CvLunion, universe = CvL_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_union,20)
+
+
+```
+
+
+
+```{r,cp CvL2}
+
+library(reshape2)
+
+
+CvL_up <- subset(CvL,meth.diff>0&qvalue<0.001)
+CvL_up <- unique(CvL_up$gene_id)
+str(CvL_up)
+
+CvL_dn <- subset(CvL,meth.diff<0&qvalue<0.001)
+CvL_dn <- unique(CvL_dn$gene_id)
+str(CvL_dn)
+
+CvG_bg <- unique(CvL$gene_id)
+str(CvL_bg)
+
+str(mysets)
+
+c_up <- enricher(gene = CvL_up, universe = CvL_bg, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_up,20)
+       
+c_dn <- enricher(gene = CvL_dn, universe = CvL_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_dn,20)
+
+CvLunion <- union(CvL_up,CvL_dn)
+
+c_union <- enricher(gene = CvLunion, universe = CvL_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_union,20)
+
+
+```
+
+
+```{r,cp GvL}
+
+library(reshape2)
+
+
+GvL_up <- subset(GvL,meth.diff>0&qvalue<0.05)
+GvL_up <- unique(GvL_up$gene_id)
+str(GvL_up)
+
+GvL_dn <- subset(GvL,meth.diff<0&qvalue<0.05)
+GvL_dn <- unique(GvL_dn$gene_id)
+str(CvL_dn)
+
+GvL_bg <- unique(GvL$gene_id)
+str(GvL_bg)
+
+str(mysets)
+
+c_up <- enricher(gene = GvL_up, universe = GvL_bg, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_up,20)
+       
+c_dn <- enricher(gene = GvL_dn, universe = GvL_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_dn,20)
+
+GvLunion <- union(GvL_up,GvL_dn)
+
+c_union <- enricher(gene = GvLunion, universe = GvL_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_union,20)
+
+
+```
+
+
+
+```{r,cp GvL2}
+
+library(reshape2)
+
+
+GvL_up <- subset(GvL,meth.diff>0&qvalue<0.001)
+GvL_up <- unique(GvL_up$gene_id)
+str(GvL_up)
+
+GvL_dn <- subset(GvL,meth.diff<0&qvalue<0.001)
+GvL_dn <- unique(GvL_dn$gene_id)
+str(CvL_dn)
+
+GvL_bg <- unique(GvL$gene_id)
+str(GvL_bg)
+
+str(mysets)
+
+c_up <- enricher(gene = GvL_up, universe = GvL_bg, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_up,20)
+       
+c_dn <- enricher(gene = GvL_dn, universe = GvL_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_dn,20)
+
+GvLunion <- union(GvL_up,GvL_dn)
+
+c_union <- enricher(gene = GvLunion, universe = GvL_bg, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(c_union,20)
+
+
+```
+
 
 ## Session information
 

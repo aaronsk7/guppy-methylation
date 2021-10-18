@@ -5,6 +5,9 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
+    toc_float: true
+    fig_width: 7
+    fig_height: 5
 theme: cosmo
 ---
 
@@ -852,6 +855,7 @@ methylkitplots <- function(tiles){
   seqnames <- tiles[1]
   start <- tiles[2]
   end <- tiles[3]
+  gene_name <- tiles[11]
   
   Foundationsub <- Foundation[which( Foundation$V1==seqnames & Foundation$V2>start & Foundation$V3<end ),4]
   ClearR1sub <- ClearR1[which( ClearR1$V1==seqnames & ClearR1$V2>start & ClearR1$V3<end ),4]
@@ -874,7 +878,7 @@ methylkitplots <- function(tiles){
              "LilacR1"=LilacR1sub,
              "LilacR2"=LilacR2sub,
              "LilacR3"=LilacR3sub)
-  HEADER = paste(seqnames,start,end)
+  HEADER = paste(seqnames,start,end,gene_name)
   par(mar=c(5,10,3,1))
   vioplot(ml, main = HEADER, xlab = "% Methylation",  horizontal=TRUE,las=1)
   beeswarm(ml, main = HEADER,  xlab = "% Methylation", horizontal = TRUE, las=1,pch=19,cex=0.5)
@@ -906,6 +910,7 @@ methylkitplots <- function(tiles){
   seqnames <- tiles[1]
   start <- tiles[2]
   end <- tiles[3]
+  gene_name <- tiles[11]
   
   Foundationsub <- Foundation[which( Foundation$V1==seqnames & Foundation$V2>start & Foundation$V3<end ),4]
   ClearR1sub <- ClearR1[which( ClearR1$V1==seqnames & ClearR1$V2>start & ClearR1$V3<end ),4]
@@ -928,7 +933,7 @@ methylkitplots <- function(tiles){
              "LilacR1"=LilacR1sub,
              "LilacR2"=LilacR2sub,
              "LilacR3"=LilacR3sub)
-  HEADER = paste(seqnames,start,end)
+  HEADER = paste(seqnames,start,end,gene_name)
   par(mar=c(5,10,3,1))
   vioplot(ml, main = HEADER, xlab = "% Methylation",  horizontal=TRUE,las=1)
   beeswarm(ml, main = HEADER,  xlab = "% Methylation", horizontal = TRUE, las=1,pch=19,cex=0.5)
@@ -962,6 +967,7 @@ methylkitplots <- function(tiles){
   seqnames <- tiles[1]
   start <- tiles[2]
   end <- tiles[3]
+  gene_name <- tiles[11]
   
   Foundationsub <- Foundation[which( Foundation$V1==seqnames & Foundation$V2>start & Foundation$V3<end ),4]
   ClearR1sub <- ClearR1[which( ClearR1$V1==seqnames & ClearR1$V2>start & ClearR1$V3<end ),4]
@@ -984,7 +990,7 @@ methylkitplots <- function(tiles){
              "LilacR1"=LilacR1sub,
              "LilacR2"=LilacR2sub,
              "LilacR3"=LilacR3sub)
-  HEADER = paste(seqnames,start,end)
+  HEADER = paste(seqnames,start,end,gene_name)
   par(mar=c(5,10,3,1))
   vioplot(ml, main = HEADER, xlab = "% Methylation",  horizontal=TRUE,las=1)
   beeswarm(ml, main = HEADER,  xlab = "% Methylation", horizontal = TRUE, las=1,pch=19,cex=0.5)
@@ -1005,6 +1011,7 @@ lapply(X=1:10, function(i) {
 
 ```
 
+## Barplot of differentially methylated tiles in gene promoter regions
 
 ```{r, gene histogram,fig.width=7,fig.height=7}
 
@@ -1036,7 +1043,7 @@ xmax=max(x)
 xmin=min(x)
 
 par(mar=c(5,15,3,1))
-barplot(x[,1],horiz=TRUE,las=1,xlim=c(xmin,xmax),cex.names=0.75,col="pink")
+barplot(main = "Differentially methylated tiles in promoters", xlab = "Differentially methylated tiles", x[,1],horiz=TRUE,las=1,xlim=c(xmin,xmax),cex.names=0.75,col="pink")
 barplot(x[,2], horiz=TRUE,las=1,xlim=c(xmin,xmax),cex.names=0.75, col="lightblue",add=T, xaxt='n')
 
 

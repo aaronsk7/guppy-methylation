@@ -61,7 +61,7 @@ write.table(mk,file=mkname,quote=FALSE,sep="\t",row.names = FALSE)
 
 biscuit2methylkit(vcfz)
 
-myobj=methRead("meth_data/test-R1.bam.vcf.gz.cg.bed.mk",
+myobj=methRead("meth_data/test-R1.mk",
            sample.id="test1",
            assembly="hg18",
            treatment=1,
@@ -112,7 +112,7 @@ lapply(myobj,function(x){
 
 myobj <- filterByCoverage(myobj,lo.count=1,lo.perc=NULL,
                                       hi.count=NULL,hi.perc=99.9)
-
+tiles <- tileMethylCounts(myobj,win.size=1000,step.size=1000,cov.bases = 10)
 meth <- unite(myobj, destrand=FALSE)
 remove(myobj)
 head(meth)
@@ -142,6 +142,28 @@ myDiff25p.hypo <- getMethylDiff(myDiff,difference=5,qvalue=0.01,type="hypo")
 
 # save object for later
 saveRDS(object=myDiff,file="CvG_mydiff.rds",compress="gzip")
+
+```
+
+
+
+## Perform differential methylation on aggregated to 1kbp tiles
+
+```{r,tiles1, fig.height=7,fig.height=7}
+
+tiles <- unite(tiles, destrand=FALSE)
+
+myDiff <- calculateDiffMeth(tiles)
+
+# get hyper methylated bases
+myDiff25p.hyper <- getMethylDiff(myDiff,difference=5,qvalue=0.01,type="hyper")
+
+# get hypo methylated bases
+myDiff25p.hypo <- getMethylDiff(myDiff,difference=5,qvalue=0.01,type="hypo")
+
+# save object for later
+saveRDS(object=myDiff,file="CvG_tiles_mydiff.rds",compress="gzip")
+
 
 ```
 

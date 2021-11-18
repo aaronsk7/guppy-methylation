@@ -1,0 +1,432 @@
+---
+title: "Results"
+author: "Aaron Kovacs"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+theme: cosmo
+fig_caption: yes
+---
+
+```{r, load packages}
+
+library(kableExtra)
+library(knitr)
+library(jpeg)
+library(png)
+
+```
+
+# Results
+
+## Pilot Study QC (section 3.1)
+
+In order to assess the reliability of the EM-seq kit, a pilot study was performed as outlined in section 2.2. To assess the performance of the EM-seq kit, we performed multiple quality control analyses. We first extracted the average CpG methylation from specific contigs as well as the spike-in controls for use in a quality control assessment analysis. These included chromosome 1, the mitochondrial chromosome, lambda phage and pUC19 plasmid. 
+
+### Percentage CpG methylation (section 3.1.1)
+
+We expect the chromosome 1 CpG sites to be intermediately methylated. As a comparative species, zebrafish chromosomal CpG methylation is ~80% (Goll and Halpern 2011) and we therefore expect our guppy samples to be relatively close to this. We also expect that the chromosome 1 CpG methylation percentages would not significantly differ between each of the samples as these experimental light conditions are unlikely to alter total methylation percentages significantly. The chromosome 1 CpG methylation percentage (Figure 3.A) ranged from 65% and 69%. This is relatively low variation between the samples and close to the zebrafish’s ~80% chromosomal CpG methylation. 
+
+The pUC19 was included in this pilot study as the positive control. The plasmid was supplied fully methylated at the CpG sites and we therefore expect its CpG methylation to be very high (>95%). We expect the pUC19 plasmid and lambda phage DNA methylation to not differ significantly between the samples as the same quantity and source of lambda phage and plasmid DNA were spiked into each of them. The pUC19 plasmid CpG methylation percentage (Figure 3.B) for each of our samples was >95% and there was low variation among the samples (~3%). 
+
+Lambda phage was included in this pilot study as the negative control and therefore we would expect CpG methylation here to be very low (<5%). The lambda phage DNA CpG methylation percentage (Figure 3.C) for each of our samples was significantly <5%. The variability among the samples for this metric was also low (~0.6%).
+
+We expect low CpG methylation (<5%) on the mitochondrial chromosome as we know that very little to no methylation exists here. As essentially 0% methylation exists at this site we expect very little variation between samples. The CpG methylation within the Mitochondrial chromosome was very low (<1%) and there was minimal variation among the samples (~0.4%) (Figure 3.D).
+
+Within the chromosomal, lambda phage and mitochondrial chromosome (Figure A, C and D) the T11-F-N sample had greater (Lambda phage and mtDNA) or lower (chromosomal) percentage of CpG methylation than the other samples. This may suggest a minor problem with the sample quality and/or the profiling of it. However, overall the results found in each of these quality control metrics provide evidence of the high quality methylation data generated with  the NEBnext enzymatic methyl-seq kit.
+
+```{r, figure 3, fig.pos="H",echo=TRUE,out.width='90%',fig.cap= "Figure 3 - CpG methylation percentage present in each sample of the pilot study. (A) Bar chart displaying the CpG methylation present in chromosome 1 of each sample. (B) Bar chart displaying the CpG methylation present in the spiked in pUC19 plasmid DNA in each of the samples. (C) Bar chart displaying the CpG methylation present in the spiked in lambda phage DNA in each of the samples. (D) Bar chart displaying the CpG methylation present in the mitochondrial chromosome in each of the samples."}
+
+knitr::include_graphics(rep("figures/CpGmethylationPilotStudyCollage.jpg"))
+
+```
+
+### Insert Length (section 3.1.2)
+
+Suzuki et al. (2018) state that when performing whole genome bisulfite sequencing using NovaSeq, they expect insert lengths to be on average <210 bp in size. In 150-bp paired-end sequencing, a >300 bp insert length is optimal as to be cost and time efficient. For most of our samples, median insert length was ~300 bp (Figure 4), this is an improvement on the expected 210 bp length. The sample T11-F-N results once again deviated from the other samples and had a median insert size of ~210, lower than optimal but meeting our expectation based on the literature.
+
+```{r, figure 4, fig.pos="H",out.width='70%',echo=TRUE,fig.cap= "Figure 4 - Violin plot displaying the insert lengths in base pairs within each sample of the pilot study. The ends of the black line under each violin indicate the interquartile range and the white indentation within the black line indicates the median."}
+
+knitr::include_graphics(rep("figures/Pilotstudyinsertlengths.png"))
+
+```
+
+### Read Length (section 3.1.3)
+
+We expect the average read length to be ~150 bp. This read length derives the most bp coverage from each read while not unnecessarily lowering the quality of the reads. This is therefore the most efficient read length. Most of our samples’ average read lengths (figure 5) were between 147-149 which is close to our optimum length. However, the sample T11-F-N was ~142 bp, less than optimal.  
+
+```{r, figure 5, fig.pos="H",echo=TRUE,out.width='70%',fig.cap= "Figure 5 - Figure displaying the mean read length in base pairs for each sample pair in the pilot study. The samples labeled “pair2” are the forward reads and the samples labeled “pair1” are the reverse reads."}
+
+knitr::include_graphics(rep("figures/Pilotstudyreadlength.png"))
+
+```
+
+### CpH methylation (section 3.1.4)
+
+For our chromosome 1, pUC19 plasmid, lambda phage and mitochondrial chromosome, CpH methylation is expected to be very low (<5%) as CpH sites are methylated at very low percentages. The chromosome 1 CpH methylation (Figure 6.A) was very low (<1.5%) meeting our minimum acceptable criteria. T11-F-N was higher than the other samples at ~1.5%. The pUC19 plasmid DNA CpH methylation (Figure 6.B) was low (<2%), however T11-F-O was 6%. This is higher than our expectation, however considering that this sample had only 32 reads, this is likely only due to an extremely low sample size. The same explanation can be used to answer why T09-F-O had 0% CpH methylation, as there were only 8 reads of the pUC19 plasmid from this sample. The lambda phage DNA CpH methylation (Figure 6.C) was low (<1.5%), meeting our minimum acceptable criteria. T11-F-N was again greater than the other samples at ~1.5%. The mitochondrial chromosome CpH methylation (figure 6.D) was low (<1.5%) meeting our minimum acceptability criteria but T11-F-N was again greater than the other samples at ~1.5%.
+
+```{r, figure 6, fig.pos="H",echo=TRUE,out.width='80%',fig.cap= "Figure 6 - CpH methylation percentage present in each sample. (A) Bar chart displaying the CpH methylation present in chromosome 1 of each sample. (B) Bar chart displaying the CpH methylation present in the spiked in pUC19 plasmid DNA in each of the samples. (C) Bar chart displaying the CpH methylation present in the spiked in lambda phage DNA in each of the samples. (D) Bar chart displaying the CpH methylation present in the mitochondrial chromosome in each of the samples."}
+
+knitr::include_graphics(rep("figures/CpHmethylationpilotstudycollagewithlabels.jpg"))
+
+```
+
+### Total/Duplicate Reads (section 3.1.5)
+
+The expectation for the total reads of each sample is to be not greater than 28 million divided by 6 (4,666,667). This is due to the capacity of the MiniSeq sequencing system. We also expect relatively little variation among the samples. Each of our samples had less than 4,666,667 total reads with minimal variation among the samples. The percentage of duplicate reads is expected to be low (<5%) as the pilot study contained a very low number of reads in each sample (7.A) when compared to the necessary amount to perform whole genome methylation profiling. As the sequencing depth rises, the expected number of duplicate reads also rises. The percentage of duplicate reads (Figure 7.B) for each sample was low (<2%) as expected.
+
+```{r, figure 7, fig.pos="H",echo=TRUE,out.width='90%',fig.cap= "Figure 7 - (A) Bart chart displaying the total number of reads for each sample. (B) Bar chart displaying the percentage of these reads which are duplicates for each sample."}
+
+knitr::include_graphics(rep("figures/Totalandduplicatereadscollagelabeled.jpg"))
+
+```
+
+### Wasted Bases Analysis (section 3.1.6)
+
+An article entitled “Data quality of whole genome bisulfite sequencing on Illumina platforms” (Raine et al. 2018) provides a table of percentage yield for 25 different library preparations/sequencing techniques. The majority of these had only 45-55% yield and the greatest percentage yield was 75%. Using these examples as a benchmark we could consider our 79.9% yield (Figure 8) from our wasted bases analysis very high. We also expect consistency between our samples as each of them have a similar number of total reads (and therefore duplicate reads) and the same sequencing and library preparation techniques were used on each sample. Each of our samples had consistent percentage yield with only a ~2-3% deviations between the samples (figure x)
+
+```{r, figure 8, fig.pos="H",echo=TRUE,out.width='50%',fig.cap= "Figure 8 - Percentage of total wasted bases at each data processing step. (A) A pie chart of all reads in the pilot study. (B) A stacked bar chart displaying the breakdown for each sample."}
+
+knitr::include_graphics(rep("figures/PilotStudyWastedBasesAnalysisCollage.png"))
+
+```
+
+## Main data QC (section 3.2)
+
+We performed a main data QC analysis as outlined in section 2.2 to ensure that our methylation profiling results were reliable. Our expectations for many of the Main data QC results do not deviate from the corresponding pilot study expectations, refer to section 3.1 to see these expectations.
+
+### Percentage CpG methylation (section 3.2.1)
+
+The Chr1, pUC19, lambda phage and mitochondrial chromosome CpG methylation pilot study and main study expectations are identical. All of the Chr1 samples had a similar CpG methylation percentage and ranged from ~72% to ~75% (figure 9.A). The pUC19 plasmid CpG methylation percentage (Figure 9.B) for each of our samples was >97% and there was minimal variation among the samples (~2%). The lambda phage DNA CpG methylation percentage (Figure 9.C) for each of our samples was <1%. The variability among the samples for this metric was also low (~0.1%). The CpG methylation within the Mitochondrial chromosome was very low (<0.3%) and there was minimal variation among the samples (<0.1%) (Figure XD).
+
+```{r, figure 9, fig.pos="H",echo=TRUE,out.width='85%',fig.cap= "Figure 9 - CpG methylation percentage present in each sample of the main data. (A) Bar chart displaying the CpG methylation present in chromosome 1 of each sample. (B) Bar chart displaying the CpG methylation present in the spiked in pUC19 plasmid DNA in each of the samples. (C) Bar chart displaying the CpG methylation present in the spiked in lambda phage DNA in each of the samples. (D) Bar chart displaying the CpG methylation present in the mitochondrial chromosome in each of the samples. "}
+
+knitr::include_graphics(rep("figures/MDCpGMethylationCollage.png"))
+
+```
+
+### Insert Length (section 3.2.2)
+
+Like the pilot study, the main study was also performed using 150-bp paired-end sequencing and therefore the insert size expectations do not differ from those of the pilot study. With the exception of Clear2F-R3 all of the samples had a median insert length >300 bp. Clear2F-R3 had slightly <300 bp (Figure 10). These results are an improvement on the suzuki et al. (2018) expectations.
+
+```{r, figure 10, fig.pos="H",echo=TRUE,out.width='70%',fig.cap= "Figure 10 - Violin plot displaying the insert lengths in base pairs within each sample of the main study. The ends of the black line under each violin indicate the interquartile range and the white indentation within the black line indicates the median."}
+
+knitr::include_graphics(rep("figures/MDInsertlength.png"))
+
+```
+
+### Read Length (section 3.2.3)
+
+Because 150-bp paired-end sequencing was performed, we have the same read length expectations as the pilot study. The mean read length was ~150.5 bp for the forward reads of each sample and ~149.5 for the reverse reads of each sample (Figure 11). Little variation existed between the samples. These results are evidence of high quality sequencing.
+
+```{r, figure 11, fig.pos="H",echo=TRUE,out.width='70%',fig.cap= "Figure 11 - Figure displaying the mean read length in base pairs for each sample pair in the main study. The samples labeled “pair2” are the forward reads and the samples labeled “pair1” are the reverse reads."}
+
+knitr::include_graphics(rep("figures/MDreadlength.png"))
+
+```
+
+### Total/Duplicate Reads (section 3.2.4)
+
+A large number of reads for each sample is required in order to have satisfactory coverage of the genome when performing whole genome methylation sequencing. The guppy genome is 731,622,281 bp in length (Howe et al. 2021) and The US National Institutes of Health (NIH) Roadmap Epigenomics Project recommends 30x coverage of the human genome when considering all replicates in order to properly perform whole genome bisulfite sequencing (Michael J Ziller et al. 2014). Considering our reads are 150 bp in length on average and we need 30x coverage, we expect to have >146,324,456.2 total reads per light condition (731,622,281x30/150). Considering all of our samples have >70,000,000 reads per replicate (figure 12), they each have >210,000,000 reads per light condition and therefore more than adequate coverage of the guppy genome. As there is only one foundation sample it must have >146,324,456.2 total reads. This sample has 151,547,956 total reads which is also more than adequate coverage of the guppy genome.
+
+```{r, figure 12, fig.pos="H",echo=TRUE,out.width='90%',fig.cap= "Figure 12 - (A) Bart chart displaying the total number of reads for each sample. (B) Bar chart displaying the percentage of these reads which are duplicates for each sample. "}
+
+knitr::include_graphics(rep("figures/MDReadscollage.png"))
+
+```
+
+### Wasted Bases Analysis (section 3.2.5)
+
+The percentage yield expectations do not deviate from the pilot study percentage yield expectations. As we achieved a far greater sequencing depth in the main study, a reduction in percentage yield is expected. The 72.6% yield obtained in our main study (figure 13) is less than the 79.9% yield of the pilot study but still very high compared to other studies which involve whole genome bisulfite sequencing. This indicates that the NEBnext kit’s reduction in DNA degradation aids in producing a greater yield than would usually be acquired performing bisulfite sequencing. ClearR1 and LilacR3 had a significantly higher percentage of Unmapped/Duplicate reads than the other samples. The number of duplicate reads for each of the samples was consistent and therefore the problem was due to difficulty in mapping the reads to the reference genome.
+
+```{r, figure 13, fig.pos="H",echo=TRUE,out.width='55%',fig.cap= "Figure 13 - Percentage of total wasted bases at each data processing step. (A) A pie chart of all reads in the pilot study. (B) A stacked bar chart displaying the breakdown for each sample."}
+
+knitr::include_graphics(rep("figures/MDwastedbasescollage.png"))
+
+```
+
+### Fold coverage
+
+To assess the genome coverage after taking into account the wasted bases, a plot which displays the coverage of each sample was created (figure 14). Combining the 3 replicates of each light condition, they easily surpass 30x coverage. These results indicate quality coverage of the guppy genome for whole genome bisulfite sequencing.
+
+```{r, figure 14, fig.pos="H",echo=TRUE,out.width='55%',fig.cap= "Figure 14 - Barchart displaying the fold coverage for each sample. "}
+
+knitr::include_graphics(rep("figures/Foldcoverage.png"))
+
+```
+
+## Principal Component Analysis and Correlation Heatmaps (section 3.3)
+
+If the experimental conditions resulted in significant changes in the guppy methylome that outweigh the effects of biological variability then we would expect to see separation of the biological conditions and the foundation population from one another on the PCA plot. We would also expect to see greater correlation within the light conditions than between than light conditions. This would be represented by colour distinctions between light conditions on the heatmap and clustering of the light condition replicates outside of the heatmap. 
+
+For both the CpG site (figure 15.A) and tile methylation (figure 15.B) we see clumping of most samples. On the CpG PCA plot clear1 and lilac 3 are distanced from the rest of the samples whereas on the tile PCA plot clear1 and foundation are separated from the rest of the samples. 
+
+```{r, figure 15, fig.pos="H",echo=TRUE,out.width='85%',fig.cap= "Figure 15 - PCA plots created using CpG methylation data. (A) A PCA plot created using CpG methylation data at the CpG site scale. (B) A PCA plot created using CpG methylation data at the tile scale."}
+
+knitr::include_graphics(rep("figures/PCAcollage.png"))
+
+```
+
+The correlation relationships displayed on each of the heatmaps (figure 16.A, 16.B, 16.C and 16.D) were similar with small distinctions. All of the heat maps displayed close relationships between the green replicates. The heatmaps overall displayed little consistency in the relationships between the lilac replicates. They also displayed little consistency between the clear replicates. In all four of the heatmaps clear1 had little correlation to any of the other samples.  In the CpG site correlation heatmaps (figure 16.A and 16.C) the foundation sample was closely related to the others. However, in the tile correlation heatmaps (figure 16.B and 16.D) The foundation had little correlation to any of the other samples.
+
+```{r, figure 16, fig.pos="H",echo=TRUE,out.width='75%',fig.cap= "Figure 16 - Correlation heatmaps generated using CpG methylation data. (A) A Pearson correlation heatmap created using CpG methylation data at the CpG site scale. (B) A Pearson correlation heatmap created using CpG methylation data at the tile scale. (C) (A) A Spearman correlation heatmap created using CpG methylation data at the CpG site scale. (D) A Spearman correlation heatmap created using CpG methylation data at the tile scale. "}
+
+knitr::include_graphics(rep("figures/Correlationcollage.png"))
+
+```
+
+
+## Differential Methylation Analysis (section 3.4)
+
+The differential methylation analysis was performed to understand if the experimental conditions resulted in differential methylation in the genes or promoter regions of genes. This differential methylation is likely to alter the expression levels of identified genes. As the DNA was extracted from the brain and eyes of the fish we expect to see significantly differentiated tiles associated with genes that are expressed in the eyes and central nervous system. It is also expected that these genes can be in some way linked to the experimental conditions, meaning that the alteration of expression levels confer a sexual selective advantage under altered light conditions.
+
+### dmrseq (section 3.4.1)
+
+```{r, table 2, fig.pos="H"}
+
+preanodmrs <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/preanodmrs.rds")
+kbl(preanodmrs, caption = "Table 2 - displays the ten most differentiated regions from each light condition comparison. The column LightComp is the light conditions which were compared in the analysis, location is either the chromosome or unmapped contig on which the dmr is located, start and end are the base pairs on the genome which the dmr starts and ends at. The column width is the size of the dmr in bps, L is the number of CpGs within the dmr, beta is the methylation difference between light groups, pval is the pvalue associated with the dmr and qval is the adjusted p-value associated with the dmr. ", ) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+The differential methylation analysis run using dmrseq yielded no significantly differentially methylated regions (dmrs) (table 2).  The most differentiated regions for the clear versus green comparison were associated with a q-value of 0.719.  The most differentiated region for the clear versus lilac comparison was associated with a q-value of 0.111 which was the closest to a statistically significant region. The most differentiated region for the green versus lilac comparison was associated with a q-value of 0.654. 
+
+```{r, table 3 and 4 and 6, fig.pos="H"}
+
+CvGanodmrs <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvGanodmrs.rds")
+CvLanodmrs <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvLanodmrs.rds")
+GvLanodmrs <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/GvLanodmrs.rds")
+
+kbl(CvGanodmrs, caption = "Table 3 - displays the ten most differentiated regions from the clear versus green comparison which could be annotated to the promoter regions of genes. The column LightComp is the light conditions which were compared in the analysis, location is the chromosome on which the dmr is located, start and end are the base pairs on the genome which the dmr starts and ends at. The column width is the size of the dmr in bps, L is the number of CpGs within the dmr, beta is the methylation difference between light groups, pval is the pvalue associated with the dmr and qvalue is the adjusted p-value associated with the dmr. The column gene_id is the ensembl ID of the gene associated with the dmr and gene_name is the name of the gene associated with the dmr. " ) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+kbl(CvLanodmrs, caption = "Table 4 - displays the ten most differentiated regions from the clear versus lilac comparison which could be annotated to the promoter regions of genes. The column LightComp is the light conditions which were compared in the analysis, location is the chromosome on which the dmr is located, start and end are the base pairs on the genome which the dmr starts and ends at. The column width is the size of the dmr in bps, L is the number of CpGs within the dmr, beta is the methylation difference between light groups, pval is the pvalue associated with the dmr and qvalue is the adjusted p-value associated with the dmr. The column gene_id is the ensembl ID of the gene associated with the dmr and gene_name is the name of the gene associated with the dmr. " ) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+kbl(GvLanodmrs, caption = "Table 5 - displays the ten most differentiated regions from the green versus lilac comparison which could be annotated to the promoter regions of genes. The column LightComp is the light conditions which were compared in the analysis, location is the chromosome on which the dmr is located, start and end are the base pairs on the genome which the dmr starts and ends at. The column width is the size of the dmr in bps, L is the number of CpGs within the dmr, beta is the methylation difference between light groups, pval is the pvalue associated with the dmr and qvalue is the adjusted p-value associated with the dmr. The column gene_id is the ensembl ID of the gene associated with the dmr and gene_name is the name of the gene associated with the dmr. " ) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+The dmrs that were identified were annotated to the promoter regions of genes (table 3, 4 and 5). The most differentiated regions from the lilac versus clear comparison were not able to be annotated to any promoter regions. The region with the lowest q-value which was annotated to a gene was associated with a q-value of 0.654 and was from the green versus lilac comparison. This means we did not have any regions close to being deemed differentially methylated by dmrseq that were annotated to a gene.
+
+### methylkit (section 3.4.2)
+
+#### CpG site level
+
+```{r, table 6}
+
+methylkitCvGdfR <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/methylkitCvGdfR.rds")
+kbl(methylkitCvGdfR, digits = 150, ,caption = "Table 6 - displays the fifteen most differentiated CpG sites from the clear versus green comparison. The column LightComp is the light conditions which were compared in the analysis, location is either the chromosome or unmapped contig on which the CpG site is located, basepair is the basepair location on the genome which the CpG site is located. The column pval is the pvalue associated with the CpG site, qvalue is the adjusted p-value associated with the CpG site and meth.diff is the methylation difference between light groups.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+
+```
+
+```{r, table 7}
+
+methylkitCvLdfR <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/methylkitCvLdfR.rds")
+kbl(methylkitCvLdfR, digits = 150, ,caption = "Table 7 - displays the fifteen most differentiated CpG sites from the clear versus lilac comparison. The column LightComp is the light conditions which were compared in the analysis, location is either the chromosome or unmapped contig on which the CpG site is located, basepair is the basepair location on the genome which the CpG site is located. The column pval is the pvalue associated with the CpG site, qvalue is the adjusted p-value associated with the CpG site and meth.diff is the methylation difference between light groups." ) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+```{r, table 8}
+
+methylkitGvLdfR <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/methylkitGvLdfR.rds")
+kbl(methylkitGvLdfR, digits = 150, ,caption = "Table 8 - displays the fifteen most differentiated CpG sites from the green versus lilac comparison. The column LightComp is the light conditions which were compared in the analysis, location is either the chromosome or unmapped contig on which the CpG site is located, basepair is the basepair location on the genome which the CpG site is located. The column pval is the pvalue associated with the CpG site, qvalue is the adjusted p-value associated with the CpG site and meth.diff is the methylation difference between light groups." ) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+Table 5 displays the eleven significantly differentiated CpG sites and four CpG sites which were not significantly differentiated found by methylkit for the clear versus green comparison. The top ten sites were all in the same region on chromosome 4. Table 7 displays the two significantly differentiated CpG sites and thirteen CpG sites which were not significantly differentiated found by methylkit for the clear versus lilac comparison. Table x displays the twelve significantly differentiated CpG sites and three CpG sites which were not significantly differentiated found by methylkit for the green versus lilac comparison. The significantly differentiated green versus lilac sites were the same sites found in the green versus clear comparison.
+
+```{r, table 9}
+
+CvGpromoterschrdfR <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvGpromoterschrdfR.rds")
+kbl(CvGpromoterschrdfR, digits = 150, ,caption = "Table 9 - displays the ten most differentiated CpG sites from the clear versus green comparison that could be annotated to the promoter regions of genes. The column LightComp is the light conditions which were compared in the analysis, location is the chromosome on which the CpG site is located, basepair is the basepair location on the genome which the CpG site is located. The column pval is the pvalue associated with the CpG site, qvalue is the adjusted p-value associated with the CpG site and meth.diff is the methylation difference between light groups. The column gene_id is the ensembl ID of the gene associated with the CpG site and gene_name is the name of the gene associated with the CpG site. ") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+```{r, table 10}
+
+CvLpromoterschrdfR <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvLpromoterschrdfR.rds")
+kbl(CvLpromoterschrdfR, digits = 150, ,caption = "Table 10 - displays the ten most differentiated CpG sites from the clear versus lilac comparison that could be annotated to the promoter regions of genes. The column LightComp is the light conditions which were compared in the analysis, location is the chromosome on which the CpG site is located, basepair is the basepair location on the genome which the CpG site is located. The column pval is the pvalue associated with the CpG site, qvalue is the adjusted p-value associated with the CpG site and meth.diff is the methylation difference between light groups. The column gene_id is the ensembl ID of the gene associated with the CpG site and gene_name is the name of the gene associated with the CpG site. ") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+```{r, table 11}
+
+GvLpromoterschrdfR <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/GvLpromoterschrdfR.rds")
+kbl(GvLpromoterschrdfR, digits = 150, ,caption = "Table 10 - displays the ten most differentiated CpG sites from the green versus lilac comparison that could be annotated to the promoter regions of genes. The column LightComp is the light conditions which were compared in the analysis, location is the chromosome on which the CpG site is located, basepair is the basepair location on the genome which the CpG site is located. The column pval is the pvalue associated with the CpG site, qvalue is the adjusted p-value associated with the CpG site and meth.diff is the methylation difference between light groups. The column gene_id is the ensembl ID of the gene associated with the CpG site and gene_name is the name of the gene associated with the CpG site. ") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+Both the clear versus green (table 9) and green versus lilac (table 11) comparisons contained the same ten differentiated CpG sites, which were all annotated to the same nasp gene. There were no significantly differentiated CpG sites from the clear versus lilac (table 10) comparison which could be annotated to promoter regions. 
+
+
+#### Tile level
+
+```{r, table 12}
+LightComp <- c('CvG','CvG','CvG','CvL','CvL','CvL','GvL','GvL','GvL','CvG','CvG','CvG','CvL','CvL','CvL','GvL','GvL','GvL','CvG','CvG','CvG','CvL','CvL','CvL','GvL','GvL','GvL')
+LightComp
+MethDirection <- c('up','down','total','up','down','total','up','down','total','up','down','total','up','down','total','up','down','total','up','down','total','up','down','total','up','down','total')
+Annotation <- c('N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','gene','gene','gene','gene','gene','gene','gene','gene','gene','promoter','promoter','promoter','promoter','promoter','promoter','promoter','promoter','promoter')
+Tiles <- c('16999','39913','56912','19497','30189','49686','31399','20391','51790','9745','23903','33648','11337','17795','29132','18666','11776','30442','3037','5836','8873','3285','4499','7784','4718','3417','8135')
+SigMethTiles <- data.frame(LightComp, MethDirection, Annotation, Tiles)
+kbl(SigMethTiles, caption = "Table 12 - Table displaying the number of significantly methylated tiles for each light group comparison, direction and annotation combination") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+A larger number of differentially methylated tiles were identified (table 12) when compared to the dmrseq identified regions and the methylkit identified CpG sites. 
+
+```{r, table 13, fig.pos="H"}
+
+preannotiles <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/preannotiles.rds")
+kbl(preannotiles, digits = 150, ,caption = "Table 13 - displays the ten most differentiated tiles for each light condition comparison. The column LightComp is the light conditions which were compared in the analysis, location is either the chromosome or unmapped contig on which the tile is located, star and end are the locations on the genome which the tile starts and ends. The column pval is the pvalue associated with the tile, qvalue is the adjusted p-value associated with the tile and meth.diff is the methylation difference between light groups.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+```{r, table 14, fig.pos="H"}
+
+geneannotiles <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/geneannotiles.rds")
+kbl(geneannotiles, digits = 150, ,caption = "Table 14 - Displays the ten most differentiated tiles for each light condition comparison that could be annotated to genes. The column LightComp is the light conditions which were compared in the analysis, location is the chromosome on which the tile is located, star and end are the locations on the genome which the tile starts and ends. The column pval is the pvalue associated with the tile, qvalue is the adjusted p-value associated with the tile and meth.diff is the methylation difference between light groups. The column gene_id is the ensembl ID of the gene associated with the tile and gene_name is the name of the gene associated with the tile.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+```{r, table 15, fig.pos="H"}
+
+promoterannotiles <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/promoterannotiles.rds")
+kbl(promoterannotiles, digits = 150, ,caption = "Table 16 - Displays the ten most differentiated tiles for each light condition comparison that could be annotated to the promoter regions of genes. The column LightComp is the light conditions which were compared in the analysis, location is the chromosome on which the tile is located, star and end are the locations on the genome which the tile starts and ends. The column pval is the pvalue associated with the tile, qvalue is the adjusted p-value associated with the tile and meth.diff is the methylation difference between light groups. The column gene_id is the ensembl ID of the gene associated with the tile and gene_name is the name of the gene associated with the tile.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+A large number of tiles associated with extremely low q-values (table 13) were identified. A large proportion of these were annotated both within genes (table 14) and within the promoter regions (table 15) of genes. The function of these genes associated with these extremely low q-values were investigated.
+
+The extremely differentiated tiles are mostly evenly spread across the entirety of the genomes (figure 17). When observing the clear versus green RCircos plot (figure 16.A), it appears as though a large number of significantly differentiated tiles are located across chromosome 16. However, only 5 differentiated tiles out of the 75 chosen to be displayed in this plot are present on chromosome 16. This problem was therefore likely caused by a bug in the RCircos package.
+
+```{r, figure 17, fig.pos="H",echo=TRUE,out.width='75%',fig.cap= "Figure 17 contains three RCircos plots which show the location and level of differentiation of the 75 most differentially methylated tiles. (A) RCircos plot generated from clear versus green comparison. (B) RCircos plot generated from clear versus lilac comparison. (C) RCircos plot generated from green versus lilac comparison."}
+
+knitr::include_graphics(rep("figures/RCircoscollage.png"))
+
+```
+
+There exists a number of genes which contain many significantly differentiated tiles in their promoter regions (figure 18). Due to the presence of this differential methylation, these genes are likely to have their expression levels altered. Therefore, to explore if these genes may confer a sexually selected advantage their functions were investigated further.
+
+```{r, figure 18, fig.pos="H",echo=TRUE,out.width='60%',fig.cap= "Figure 18 contains three bar charts which each display the twenty genes with the most differentially methylated tiles annotated to their promoter region which are in the negative direction and the twenty genes with the most differentially methylated tiles annotated to their promoter region which are in the positive direction from each light condition comparison. (A) Bar chart created using clear versus green comparison. (B)  Bar chart created using clear versus lilac comparison. (C) Bar chart created using green versus lilac comparison."}
+
+knitr::include_graphics(rep("figures/Promotergenetilescollage.png"))
+```
+
+
+## Enrichment analysis (section 3.5)
+
+If the changes in light conditions resulted in methylation derived alterations to gene expression we expect to find biological pathways/functions significantly enriched that can be linked to the experimental conditions. Biological pathways that have been significantly or reasonably close to significantly enriched that are linkable to the experimental conditions are notable results. Notable results of this kind will be highlighted in this results section and explored further in the discussion.
+
+### mitch (section 3.5.1)
+
+```{r, table 16}
+
+mitchresults <- readRDS("/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/mitchresults.rds")
+kbl(mitchresults, digits = 5, ,caption = "Table 16 - displays the ten most enriched biological pathways/functions for each light group compariosn. The column LightComp is the light conditions which were compared in the analysis, pathway/function is the ontological pathway code associated with the the pathway as well as the name of the pathway. The column pANOVA is the pvalue associated with the pathway, p.adjustANOVA is the adjusted p-value associated with the pathway. ") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+The mitch class sorting enrichment analysis (table 16) yielded no significantly enriched biological pathways for any of the three light group comparisons. The closest to a significant result was the biological pathway chaperone binding which was associated with an adjusted p-value of 0.172 when comparing clear versus green light conditions. GTP binding was associated with a q-value of 0.577 and was seventh most enriched pathway (when comparing p-values associated with pathways) out of a list of 1441 pathways in the clear versus green analysis. The clear versus lilac analysis yielded the least enriched results. Brain development was associated with a q-value of 0.548 and was the fifth most enriched pathway in the green versus lilac analysis. GTPase activator activity was also associated with a q-value of 0.548 and was the fourth most enriched pathway in the green versus lilac analysis.
+
+### Cluster profiler (section 3.5.2)
+
+The most interesting results were extracted from the cluster profiler over representation analysis and were used to create two tables. One displayed numerous significantly enriched biological pathways (table 17) and the other displayed pathways which were not significantly enriched but still interesting results (table 18).
+
+#### Significantly enriched 
+
+```{r, table 17}
+LightComp <- c('CvG','CvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL')
+LightComp
+MethDirection <- c('all','up','up','all','all','all','all','all','all','all','all')
+Qvalselection <- c('<0.001','<0.5','<0.5','<0.5','<0.5','<0.001','<0.001','<0.001','<0.001','<0.001','<0.001')
+Pathway <- c('Regulation of GTPase','nucleus','multicellular organism development','multicellular organism development','DNA-binding transcription factor activity, RNA polymerase II-specific','fatty acid transmembrane transporter activity','long-chain fatty acid metabolic process','long-chain fatty acid-CoA ligase activity','fatty acid transport',' very long-chain fatty acid-CoA ligase activity','bile acid biosynthetic process')
+Qvalue <- c('0.0491','0.0446','0.0039','0.0009','0.0085','0.0043','0.0043','0.0043','0.0043','0.0043','0.0404')
+SigMethTiles <- data.frame(LightComp, MethDirection, Qvalselection, Pathway, Qvalue)
+kbl(SigMethTiles, caption = "Table 17 - Table displaying the significantly enriched biological pathways/functions and the q-value associated with these pathways/functions for each light group comparison, methylation direction and q-value selection combination") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+The biological pathway, regulation of GTPase, was significantly enriched in the clear versus green analysis in which all tiles associated with a q-value of <0.001 were selected. This biological pathway was associated with a q-value of 0.049. The clear versus lilac analysis in which only those tiles which were methylated in the positive direction and associated with a q-value of <0.05 were selected yielded one significantly enriched pathway. The pathway nucleus was associated with a q-value of 0.046.
+
+The green versus lilac analysis in which only those tiles which were methylated in the positive direction and associated with a q-value of <0.05 were selected yielded one significantly enriched pathway. The pathway multicellular organism development was associated with a q-value of 0.0039. This same light condition analysis in which all tiles associated with a q-value of <0.05 were selected yielded two significant results. multicellular organism development was associated with a q-value of 0.0039 and DNA-binding transcription factor activity, RNA polymerase II-specific was associated with a q-value of 0.0085.
+
+The green versus lilac analysis in which all those tiles which were associated with a q-value of 0.001 yielded six significantly enriched pathways. fatty acid transmembrane transporter activity, long-chain fatty acid metabolic process, long-chain fatty acid-CoA ligase activity, fatty acid transport and very long-chain fatty acid-CoA ligase activity were all associated with a q-value of 0.0043. bile acid biosynthetic process was associated with a q-value of 0.0404.
+
+#### Other notable results
+
+```{r, table 18}
+LightComp <- c('CvG','CvG','CvL','CvL','GvL','GvL')
+LightComp
+MethDirection <- c('up','up','up','up','all','down')
+Qvalselection <- c('<0.5','<0.5','<0.5','<0.001','<0.5','<0.5')
+Pathway <- c('Regulation of cell migration','Neural crest cell','Retina morphogenesis in camera-type eye','melanocyte differentiation','GTPase activator activity','embryonic camera-type eye development')
+Pvalue <- c('0.0039','0.0059','0.0006','0.0056','0.0001','0.0129')
+Qvalue <- c('0.7950','0.7950','0.3619','0.5707','0.0723','0.5483')
+No.Pathway <- c('4','5','2','2','3','15')
+SigMethTiles <- data.frame(LightComp, MethDirection, Qvalselection, Pathway, Pvalue, Qvalue, No.Pathway)
+kbl(SigMethTiles, digits = 150, caption = "Table 18 - Table displaying the non-significantly enriched biological pathways/functions that are interesting, the p-value and q-value associated with these pathways/functions and the pathway's rank in enrichment out of a list of 1441 pathways for each light group comparison, methylation direction and q-value selection combination") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+The clear versus green analysis in which only those tiles which were methylated in the positive direction associated with a q-value of <0.05 were selected had two notable results. Regulation of cell migration was associated with a q-value of 0.7950 and was the fourth most enriched pathway out of 1441 pathways in this analysis. Neural crest cell development was also associated with a q-value of 0.7950 and was the fifth most enriched pathway.
+
+The clear versus lilac analysis in which only those tiles which were methylated in the positive direction and associated with a q-value of <0.05 were selected yielded one other notable result. Retina morphogenesis in camera-type eye was associated with a q-value of 0.3619 and was the second most enriched pathway in this analysis. The clear versus lilac analysis in which only those tiles which were methylated in the positive direction and associated with a q-value of <0.001 were selected yielded one other notable result. melanocyte differentiation was associated with a q-value of 0.5707 and was the second most enriched pathway. 
+
+The green versus lilac analysis in which all those tiles which were associated with a q-value of <0.05 were selected yielded one other notable result. GTPase activator activity was associated with a 0.0723 q-value and was the third most enriched pathway in this analysis. The green versus lilac analysis in which only those tiles which were methylated in the negative direction and were associated with a q-value of <0.05 were selected yielded one other notable result. embryonic camera-type eye development was associated with a q-value of 0.5483 and was the 15 most enriched pathway for this analysis. 
+
+## Identified tiles (section 3.6)
+
+As charts were generated for a very large number of genes, not all could be presented in this thesis. Four genes which were either associated with extremely significant differentiated tiles and/or were were linked to the experimental conditions were selected. The rest of the plots can be obtained by running the script found at https://github.com/aaronsk7/guppy-methylation/blob/main/methylkitresultsanalysis.Rmd. 
+
+As the nasp gene was identified as significant at both the CpG site scale (table 9 and 11) and the tile scale (table 12 and 14) this is one gene which was investigated further (figure 19 and 20). The gpc5b gene was identified as significant at the tile scale and shared the same two tiles as the nasp gene in their promoter regions (figure 19 and 20). The first tile (figure 19.A) had ~10% greater mean methylation in the green1, green3 and foundation population than the other populations. The second tile (figure 20.A) had similar results to the first tile. The lilac3 population had a ~6% greater mean methylation in the second tile and the populations green2, lilac1, lilac2, clear1, clear2 and clear3 had a ~2% greater mean population in the second tile. Differences in methylation percentage distributions are observable for both tiles in the violin plot (figure 119.B and 20.B) and beeswarm plot that are in line with the mean methylation percentage results (figure 19.C and 20.C). 
+
+```{r, figure 19, fig.pos="H",echo=TRUE,out.width='60%',fig.cap= "Figure 19 - series of charts displaying CpG methylation percentage for each sample at the tile which starts at the basepair 1847001 on chromosome 4 and is within the gpc5b and nasp gene promoter region. (A) Barchart (B)  Violin plot (C) Beeswarm plot."}
+
+knitr::include_graphics(rep("figures/naspcollage.png"))
+
+```
+
+```{r, figure 20, fig.pos="H",echo=TRUE,out.width='60%',fig.cap= "Figure 20 - series of charts displaying CpG methylation percentage for each sample at the tile which starts at the basepair 1846001 on chromosome 4 and is within the gpc5b and nasp gene promoter region. (A) Barchart (B)  Violin plot (C) Beeswarm plot."}
+
+knitr::include_graphics(rep("figures/gpc5bcollage.png"))
+
+```
+
+The most significant tile that could be annotated to the promoter region of a gene in the clear versus lilac comparison was annotated to the gene zgc:153964, the name of which has since been updated to ptk6b. This gene was investigated further. All three lilac populations and the clear1 population had a significantly reduced mean methylation percentage at <55% when compared to the others (figure 21.A). The clear2 and clear3 populations had the greatest mean methylation at >75%. Differences in methylation percentage distributions are observable in the violin plot (figure 21.B) and beeswarm plot that are in line with the mean methylation percentage results (figure 21.C).
+
+
+```{r, figure 21, fig.pos="H",echo=TRUE,out.width='60%',fig.cap= "Figure 21 - series of charts displaying CpG methylation percentage for each sample at the tile which starts at the basepair 20995001 on chromosome 2 and is within the zgc:153964 or ptk6b gene promoter region. (A) Barchart (B)  Violin plot (C) Beeswarm plot."}
+
+knitr::include_graphics(rep("figures/ptk6bcollage.png"))
+
+```
+
+A tile which was significantly deferentially methylated and found in the promoter region of a gene, hmx1, which was linked the the biological pathway "retina morphogenesis in camera-type" was investigated further. The foundation population had a mean methylation percentage of <30% which was far greater than any other population (figure 22.A). Differences in methylation percentage distributions are observable in the violin plot (figure 22.B) and beeswarm plot that are in line with the mean methylation percentage results (figure 22.C).
+
+```{r, figure 22, fig.pos="H",echo=TRUE,out.width='60%',fig.cap= "Figure 22 - series of charts displaying CpG methylation percentage for each sample at the tile which starts at the basepair 14443001 on chromosome 1 and is within the hmx1 gene promoter region. (A) Barchart (B)  Violin plot (C) Beeswarm plot."}
+
+knitr::include_graphics(rep("figures/hmx1collage.png"))
+
+```
+
+

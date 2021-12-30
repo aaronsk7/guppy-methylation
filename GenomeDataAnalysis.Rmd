@@ -94,9 +94,9 @@ DivOldSNPsgenesdf <- cbind(DivOldSNPsgenesdf,myGenesoldf1[c("gene_id","gene_biot
 DivOldSNPsgenesdf$seqnames <- as.character(DivOldSNPsgenesdf$seqnames)
 head(DivOldSNPsgenesdf)
 #Cleanup columns
-DivOldSNPsgenesdf <- dplyr::select(DivOldSNPsgenesdf, seqnames, start, Chromosome, Ref, sigF.CG, sigF.CL, C.G.Female, C.L.Female, gene_id, gene_biotype, gene_name)
+DivOldSNPsgenesdf <- dplyr::select(DivOldSNPsgenesdf, seqnames, start, Chromosome, Ref, sigF.CG, sigF.CL, sigM.CG, sigM.CL, C.G.Female, C.L.Female, C.G.Male, C.L.Male, gene_id, gene_biotype, gene_name)
 head(DivOldSNPsgenesdf)
-colnames(DivOldSNPsgenesdf) <- c("chromosome","location","chromosomecode","ref","sigF.CG","sigF.CL","CGfemalepval","CLfemalepval","gene_id","gene_biotype","gene_name")
+colnames(DivOldSNPsgenesdf) <- c("chromosome","location","chromosomecode","ref","sigF.CG","sigF.CL","sigM.CG","sigM.CL","CGfemalepval","CLfemalepval","CGmalepval","CLmalepval","gene_id","gene_biotype","gene_name")
 #filter genetic data for only significant SNPs in female comparison
 DivOldSNPsgenesdf1 <- DivOldSNPsgenesdf %>% filter(sigF.CG == 1)
 DivOldSNPsgenesdf2 <- DivOldSNPsgenesdf %>% filter(sigF.CL == 1)
@@ -353,6 +353,7 @@ mysetsdf <- melt(mysets)
 head(mysetsdf)
 mysetsdf <-mysetsdf[,c(2,1)]
 head(mysetsdf)
+head(DivOldSNPsgenesdf)
 
 DivOldSNPsgenesdfFCG <- DivOldSNPsgenesdf %>% filter(sigF.CG == 1)
 CvGF <- unique(DivOldSNPsgenesdfFCG$gene_id)

@@ -100,7 +100,7 @@ colnames(DivOldSNPsgenesdf) <- c("chromosome","location","chromosomecode","ref",
 #filter genetic data for only significant SNPs in female comparison
 DivOldSNPsgenesdf1 <- DivOldSNPsgenesdf %>% filter(sigF.CG == 1)
 DivOldSNPsgenesdf2 <- DivOldSNPsgenesdf %>% filter(sigF.CL == 1)
-DivOldSNPsgenesdf <- union(DivOldSNPsgenesdf1 , DivOldSNPsgenesdf2)
+DivOldSNPsgenesdfF <- union(DivOldSNPsgenesdf1 , DivOldSNPsgenesdf2)
 
 
 ```
@@ -146,26 +146,26 @@ head(Methyldata15methdif)
 ```{r, intersect epigenetic data with genome data}
 
 #we want specific columns from both data frames into one combined one
-intgenes <- intersect(Methyldata$gene_name, DivOldSNPsgenesdf$gene_name)
+intgenes <- intersect(Methyldata$gene_name, DivOldSNPsgenesdfF$gene_name)
 head(intgenes)
-intgenesmethdif10 <- intersect(Methyldata10methdif$gene_name, DivOldSNPsgenesdf$gene_name)
+intgenesmethdif10 <- intersect(Methyldata10methdif$gene_name, DivOldSNPsgenesdfF$gene_name)
 intgenesmethdif10
-intgenesmethdif15 <- intersect(Methyldata15methdif$gene_name, DivOldSNPsgenesdf$gene_name)
+intgenesmethdif15 <- intersect(Methyldata15methdif$gene_name, DivOldSNPsgenesdfF$gene_name)
 intgenesmethdif15
 #filter dataframes by crossover gene names
 methylcrossdata <- Methyldata[Methyldata$gene_name %in% intgenes, ]
 head(methylcrossdata)
-geneticcrossdata <- DivOldSNPsgenesdf[DivOldSNPsgenesdf$gene_name %in% intgenes, ]
+geneticcrossdata <- DivOldSNPsgenesdfF[DivOldSNPsgenesdfF$gene_name %in% intgenes, ]
 head(geneticcrossdata)
 
 methylcrossdata10 <- Methyldata10methdif[Methyldata10methdif$gene_name %in% intgenesmethdif10, ]
 methylcrossdata10
-geneticcrossdata10 <- DivOldSNPsgenesdf[DivOldSNPsgenesdf$gene_name %in% intgenesmethdif10, ]
+geneticcrossdata10 <- DivOldSNPsgenesdfF[DivOldSNPsgenesdfF$gene_name %in% intgenesmethdif10, ]
 geneticcrossdata10
 
 methylcrossdata15 <- Methyldata15methdif[Methyldata15methdif$gene_name %in% intgenesmethdif15, ]
 methylcrossdata15
-geneticcrossdata15 <- DivOldSNPsgenesdf[DivOldSNPsgenesdf$gene_name %in% intgenesmethdif15, ]
+geneticcrossdata15 <- DivOldSNPsgenesdfF[DivOldSNPsgenesdfF$gene_name %in% intgenesmethdif15, ]
 geneticcrossdata15
 
 #order genetic data

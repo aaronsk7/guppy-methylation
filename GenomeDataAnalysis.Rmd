@@ -1,0 +1,392 @@
+---
+title: "Genome Data Analysis"
+author: "Aaron Kovacs and Mark Ziemann"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+theme: cosmo
+---
+
+```{r, Load in packages}
+
+library(GenomicFeatures)
+library(BiocManager)
+library(dplyr)
+library(clusterProfiler)
+library(reshape2)
+
+```
+
+
+
+```{r, load in data}
+
+FemaleGuppyGenome <- read.csv("~/projects/guppy-methylation/genome_data/FemaleGuppyGenomeGenesAndScaffolds.csv", comment.char="#")
+GeneDivMingSNPs <- read.csv("~/projects/guppy-methylation/genome_data/Gene-SignificantSNPs-DivTestsMingPool.csv", comment.char="#")
+GeneDivOldSNPs <- read.csv("~/projects/guppy-methylation/genome_data/Gene-SignificantSNPs-DivTestsOld.csv", comment.char="#")
+GeneDivReseqSNPs <- read.csv("~/projects/guppy-methylation/genome_data/Gene-SignificantSNPs-DivTestsReseq.csv", comment.char="#")
+GeneEvMingSNPs <- read.csv("~/projects/guppy-methylation/genome_data/Gene-SignificantSNPs-EvolveTestsMingPool.csv", comment.char="#")
+GeneEvOldSNPs <- read.csv("~/projects/guppy-methylation/genome_data/Gene-SignificantSNPs-EvolveTestsOld.csv", comment.char="#")
+GeneEvReseqSNPs <- read.csv("~/projects/guppy-methylation/genome_data/Gene-SignificantSNPs-EvolveTestsReseq.csv", comment.char="#")
+DivMingSNPs <- read.csv("~/projects/guppy-methylation/genome_data/SignificantSNPs-DivTestsMingPool.csv", comment.char="#")
+DivOldSNPs <- read.csv("~/projects/guppy-methylation/genome_data/SignificantSNPs-DivTestsOld.csv", comment.char="#")
+DivReseqSNPs <- read.csv("~/projects/guppy-methylation/genome_data/SignificantSNPs-DivTestsReseq.csv", comment.char="#")
+EvMingSNPs <- read.csv("~/projects/guppy-methylation/genome_data/SignificantSNPs-EvolveTestsMingPool.csv", comment.char="#")
+EvOldSNPs <- read.csv("~/projects/guppy-methylation/genome_data/SignificantSNPs-EvolveTestsOld.csv", comment.char="#")
+EvReseqSNPs <- read.csv("~/projects/guppy-methylation/genome_data/SignificantSNPs-EvolveTestsReseq.csv", comment.char="#")
+head(FemaleGuppyGenome)
+head(GeneDivMingSNPs)
+head(GeneDivOldSNPs)
+head(GeneDivReseqSNPs)
+head(GeneEvOldSNPs)
+head(DivOldSNPs)
+head(DivMingSNPs)
+MethylCvG <- readRDS(file = "~/projects/guppy-methylation/RDSfiles/CvGtiles_genepromoters.rds")
+MethylCvL <- readRDS(file = "~/projects/guppy-methylation/RDSfiles/CvLtiles_genepromoters.rds")
+MethylGvL <- readRDS(file = "~/projects/guppy-methylation/RDSfiles/GvLtiles_genepromoters.rds")
+head(MethylCvG)
+gtf <- rtracklayer::import("/mnt/data/aaron/projects/guppy-methylation/Poecilia_reticulata.Guppy_female_1.0_MT.103.gtf")
+head(gtf)
+my_genes <- gtf[gtf$type == "gene"]
+head(my_genes)
+mcols(my_genes) <- mcols(my_genes)[c(5,8,18)]
+head(my_genes)
+
+```
+
+
+
+```{r, find overlaps}
+
+head(DivOldSNPs)
+DivOldSNPs$ChrID <- paste("LG", DivOldSNPs$ChrID, sep = "")
+head(DivOldSNPs)
+
+#Convert dataframe into Granges objects to find overlaps
+head(my_genes)
+
+DivOldSNPsGran <- makeGRangesFromDataFrame(DivOldSNPs,
+                         keep.extra.columns=TRUE,
+                         ignore.strand = TRUE,
+                         seqinfo=NULL,
+                         seqnames.field="ChrID",
+                         start.field="Location",
+                         end.field="Location",
+                         starts.in.df.are.0based=FALSE)
+
+#find overlaps
+ol1 <- findOverlaps(DivOldSNPsGran,my_genes)
+ol1
+DivOldSNPsgenes <- DivOldSNPsGran[queryHits(ol1)]
+head(DivOldSNPsgenes)
+myGenesol1 <- my_genes[subjectHits(ol1)]
+head(myGenesol1)
+
+#convert to dataframes and bind gene name to SNPs
+DivOldSNPsgenesdf <- as.data.frame(DivOldSNPsgenes,row.names = 1:nrow(as.data.frame(ranges(DivOldSNPsgenes))))
+str(DivOldSNPsgenesdf)
+head(DivOldSNPsgenesdf)
+myGenesoldf1 <- as.data.frame(myGenesol1,row.names = 1:nrow(as.data.frame(ranges(myGenesol1))))
+head(myGenesoldf1)
+DivOldSNPsgenesdf <- cbind(DivOldSNPsgenesdf,myGenesoldf1[c("gene_id","gene_biotype","gene_name")])
+DivOldSNPsgenesdf$seqnames <- as.character(DivOldSNPsgenesdf$seqnames)
+head(DivOldSNPsgenesdf)
+#Cleanup columns
+DivOldSNPsgenesdf <- dplyr::select(DivOldSNPsgenesdf, seqnames, start, Chromosome, Ref, sigF.CG, sigF.CL, C.G.Female, C.L.Female, gene_id, gene_biotype, gene_name)
+head(DivOldSNPsgenesdf)
+colnames(DivOldSNPsgenesdf) <- c("chromosome","location","chromosomecode","ref","sigF.CG","sigF.CL","CGfemalepval","CLfemalepval","gene_id","gene_biotype","gene_name")
+#filter genetic data for only significant SNPs in female comparison
+DivOldSNPsgenesdf1 <- DivOldSNPsgenesdf %>% filter(sigF.CG == 1)
+DivOldSNPsgenesdf2 <- DivOldSNPsgenesdf %>% filter(sigF.CL == 1)
+DivOldSNPsgenesdf <- union(DivOldSNPsgenesdf1 , DivOldSNPsgenesdf2)
+
+
+```
+
+```{r, clean up epigenetic data}
+
+#add comparison group to each methyldata frame
+comparison <- rep(c("CvG"),times=88483)
+MethylCvG <- cbind(comparison,MethylCvG)
+head(MethylCvG)
+comparison <- rep(c("CvL"),times=88324)
+MethylCvL <- cbind(comparison,MethylCvL)
+head(MethylCvL)
+comparison <- rep(c("GvL"),times=90250)
+MethylGvL <- cbind(comparison,MethylGvL)
+head(MethylGvL)
+#combine methyldata
+Methyldata <- union(MethylCvG,MethylCvL)
+Methyldata <- union(Methyldata,MethylGvL)
+head(Methyldata)
+#remove unnecessary columns, rename columns and order Methyldata dataframe
+Methyldata <- dplyr::select(Methyldata, comparison, seqnames, start, end, pvalue, qvalue, meth.diff, gene_id, transcript_id, gene_name)
+colnames(Methyldata) <- c("comparison","chromosome","start","end","pvalue","qvalue","meth.diff","gene_id","transcript_id","gene_name")
+Methyldata <- Methyldata[order(Methyldata[,6]), ]
+head(Methyldata)
+#filter for only those tiles with a signficant qvalue
+Methyldata <- Methyldata %>% filter(qvalue <= 0.05)
+head(Methyldata)
+#filter for meth.diff of greater than 10 or less than -10
+Methyldata10methdif1 <- Methyldata %>% filter(meth.diff > 10)
+Methyldata10methdif2 <- Methyldata %>% filter(meth.diff < -10)
+Methyldata10methdif <- union(Methyldata10methdif1 , Methyldata10methdif2)
+head(Methyldata10methdif)
+Methyldata15methdif1 <- Methyldata %>% filter(meth.diff > 15)
+Methyldata15methdif2 <- Methyldata %>% filter(meth.diff < -15)
+Methyldata15methdif <- union(Methyldata15methdif1 , Methyldata15methdif2)
+head(Methyldata15methdif)
+
+```
+
+
+
+```{r, intersect epigenetic data with genome data}
+
+#we want specific columns from both data frames into one combined one
+intgenes <- intersect(Methyldata$gene_name, DivOldSNPsgenesdf$gene_name)
+head(intgenes)
+intgenesmethdif10 <- intersect(Methyldata10methdif$gene_name, DivOldSNPsgenesdf$gene_name)
+intgenesmethdif10
+intgenesmethdif15 <- intersect(Methyldata15methdif$gene_name, DivOldSNPsgenesdf$gene_name)
+intgenesmethdif15
+#filter dataframes by crossover gene names
+methylcrossdata <- Methyldata[Methyldata$gene_name %in% intgenes, ]
+head(methylcrossdata)
+geneticcrossdata <- DivOldSNPsgenesdf[DivOldSNPsgenesdf$gene_name %in% intgenes, ]
+head(geneticcrossdata)
+
+methylcrossdata10 <- Methyldata10methdif[Methyldata10methdif$gene_name %in% intgenesmethdif10, ]
+methylcrossdata10
+geneticcrossdata10 <- DivOldSNPsgenesdf[DivOldSNPsgenesdf$gene_name %in% intgenesmethdif10, ]
+geneticcrossdata10
+
+methylcrossdata15 <- Methyldata15methdif[Methyldata15methdif$gene_name %in% intgenesmethdif15, ]
+methylcrossdata15
+geneticcrossdata15 <- DivOldSNPsgenesdf[DivOldSNPsgenesdf$gene_name %in% intgenesmethdif15, ]
+geneticcrossdata15
+
+#order genetic data
+geneticcrossdataCvG <- geneticcrossdata[order(geneticcrossdata[,7]), ]
+geneticcrossdataCvL <- geneticcrossdata[order(geneticcrossdata[,8]), ]
+head(geneticcrossdataCvG)
+head(geneticcrossdataCvL)
+
+geneticcrossdata10CvG <- geneticcrossdata10[order(geneticcrossdata10[,7]), ]
+geneticcrossdata10CvL <- geneticcrossdata10[order(geneticcrossdata10[,8]), ]
+geneticcrossdata10CvG
+geneticcrossdata10CvL
+
+geneticcrossdata15CvG <- geneticcrossdata15[order(geneticcrossdata15[,7]), ]
+geneticcrossdata15CvL <- geneticcrossdata15[order(geneticcrossdata15[,8]), ]
+geneticcrossdata15CvG
+geneticcrossdata15CvL
+
+#filter objects for only those signficant in CvG and CvL respectively
+geneticcrossdataCvG <- geneticcrossdataCvG %>% filter(sigF.CG == 1)
+geneticcrossdataCvL <- geneticcrossdataCvL %>% filter(sigF.CL == 1)
+
+geneticcrossdata10CvG <- geneticcrossdata10CvG %>% filter(sigF.CG == 1)
+geneticcrossdata10CvL <- geneticcrossdata10CvL %>% filter(sigF.CL == 1)
+
+geneticcrossdata15CvG <- geneticcrossdata15CvG %>% filter(sigF.CG == 1)
+geneticcrossdata15CvL <- geneticcrossdata15CvL %>% filter(sigF.CL == 1)
+
+```
+
+## List of gene names which contain signficantly methylated tiles in promoter region and contain signficant SNPs in females 
+
+```{r, list of gene names filtered for minimum 10 and 15 percentage methylation change}
+
+#filtered for minimum 10 percent methylation change
+intgenesmethdif10
+#filtered for minimum 15 percent methylation change
+intgenesmethdif15
+
+```
+
+## Data frames filtered for the above genes
+
+### gpc5b
+
+```{r, gpc5b}
+
+intgenesmethdif15
+gpc5bmeth <- methylcrossdata10[grep("gpc5b",methylcrossdata10$gene_name),]
+gpc5bgenCvG <- geneticcrossdata10CvG[grep("gpc5b",geneticcrossdata10CvG$gene_name),]
+gpc5bgenCvL <- geneticcrossdata10CvL[grep("gpc5b",geneticcrossdata10CvL$gene_name),]
+#Significantly methylated tiles
+gpc5bmeth
+#Significant SNPs in CvL comparison
+gpc5bgenCvL
+
+```
+
+### TCF7L1
+
+```{r, TCF7L1}
+
+TCF7L1meth <- methylcrossdata10[grep("TCF7L1",methylcrossdata10$gene_name),]
+TCF7L1genCvG <- geneticcrossdata10CvG[grep("TCF7L1",geneticcrossdata10CvG$gene_name),]
+TCF7L1genCvL <- geneticcrossdata10CvL[grep("TCF7L1",geneticcrossdata10CvL$gene_name),]
+#Significantly methylated tiles
+TCF7L1meth
+#Significant SNPs in CvG comparison
+TCF7L1genCvG
+
+```
+
+### pan2
+
+```{r, pan2}
+
+pan2meth <- methylcrossdata10[grep("pan2",methylcrossdata10$gene_name),]
+pan2genCvG <- geneticcrossdata10CvG[grep("pan2",geneticcrossdata10CvG$gene_name),]
+pan2genCvL <- geneticcrossdata10CvL[grep("pan2",geneticcrossdata10CvL$gene_name),]
+#Significantly methylated tiles
+pan2meth
+#Significant SNPs in CvL comparison
+pan2genCvL
+
+```
+
+### NXPE3
+
+```{r, NXPE3}
+
+NXPE3meth <- methylcrossdata10[grep("NXPE3",methylcrossdata10$gene_name),]
+NXPE3genCvG <- geneticcrossdata10CvG[grep("NXPE3",geneticcrossdata10CvG$gene_name),]
+NXPE3genCvL <- geneticcrossdata10CvL[grep("NXPE3",geneticcrossdata10CvL$gene_name),]
+#Significantly methylated tiles
+NXPE3meth
+#Significant SNPs in CvG comparison
+NXPE3genCvG
+
+```
+
+### gabrr2b
+
+```{r, gabrr2b}
+
+gabrr2bmeth <- methylcrossdata10[grep("gabrr2b",methylcrossdata10$gene_name),]
+gabrr2bgenCvG <- geneticcrossdata10CvG[grep("gabrr2b",geneticcrossdata10CvG$gene_name),]
+gabrr2bgenCvL <- geneticcrossdata10CvL[grep("gabrr2b",geneticcrossdata10CvL$gene_name),]
+#Significantly methylated tiles
+gabrr2bmeth
+#Significant SNPs in CvG comparison
+gabrr2bgenCvG
+
+```
+
+### schip1
+
+```{r, schip1}
+
+schip1meth <- methylcrossdata10[grep("schip1",methylcrossdata10$gene_name),]
+schip1genCvG <- geneticcrossdata10CvG[grep("schip1",geneticcrossdata10CvG$gene_name),]
+schip1genCvL <- geneticcrossdata10CvL[grep("schip1",geneticcrossdata10CvL$gene_name),]
+#Significantly methylated tiles
+schip1meth
+#Significant SNPs in CvG comparison
+schip1genCvG
+#Significant SNPs in CvL comparison
+schip1genCvL
+
+```
+
+### cdc42bpab
+
+```{r, cdc42bpab}
+
+cdc42bpabmeth <- methylcrossdata10[grep("cdc42bpab",methylcrossdata10$gene_name),]
+cdc42bpabgenCvG <- geneticcrossdata10CvG[grep("cdc42bpab",geneticcrossdata10CvG$gene_name),]
+cdc42bpabgenCvL <- geneticcrossdata10CvL[grep("cdc42bpab",geneticcrossdata10CvL$gene_name),]
+#Significantly methylated tiles
+cdc42bpabmeth
+#Significant SNPs in CvL comparison
+cdc42bpabgenCvL
+
+```
+
+### aebp2
+
+```{r, aebp2}
+
+aebp2meth <- methylcrossdata10[grep("aebp2",methylcrossdata10$gene_name),]
+aebp2genCvG <- geneticcrossdata10CvG[grep("aebp2",geneticcrossdata10CvG$gene_name),]
+aebp2genCvL <- geneticcrossdata10CvL[grep("aebp2",geneticcrossdata10CvL$gene_name),]
+#Significantly methylated tiles
+aebp2meth
+#Significant SNPs in CvG comparison
+aebp2genCvG
+
+```
+
+## Over representation analysis using Cluster Profiler
+
+```{r, load in gene ontology data}
+
+go <- readLines("mart_export.txt.gz")
+head(go)
+gol <- (strsplit(go,"\t"))
+head(gol)
+godf <- do.call(rbind,gol)
+colnames(godf) <- godf[1,]
+godf <- godf[2:nrow(godf),]
+gos <- unique(godf[,"GO term accession"])
+mysets <- lapply(gos,function(x) { unique(godf[which(x == godf[,"GO term accession"]),1])  } )
+mynames <- sapply(gos,function(x) { unname(godf[head(which(x == godf[,"GO term accession"] ),1),"GO term name"] ) } )
+mynames <- paste(gos,mynames)
+names(mysets) <- mynames
+head(mysets)
+
+```
+
+
+
+```{r, Perform over representation analysis}
+
+head(mysets)
+mysetsdf <- melt(mysets)
+head(mysetsdf)
+mysetsdf <-mysetsdf[,c(2,1)]
+head(mysetsdf)
+
+DivOldSNPsgenesdfFCG <- DivOldSNPsgenesdf %>% filter(sigF.CG == 1)
+CvGF <- unique(DivOldSNPsgenesdfFCG$gene_id)
+DivOldSNPsgenesdfMCG <- DivOldSNPsgenesdf %>% filter(sigM.CG == 1)
+CvGM <- unique(DivOldSNPsgenesdfMCG$gene_id)
+DivOldSNPsgenesdfunionCG <- union(DivOldSNPsgenesdfFCG,DivOldSNPsgenesdfMCG)
+CvGU <- unique(DivOldSNPsgenesdfunionCG$gene_id)
+
+DivOldSNPsgenesdfFCL <- DivOldSNPsgenesdf %>% filter(sigF.CL == 1)
+CvLF <- unique(DivOldSNPsgenesdfFCL$gene_id)
+DivOldSNPsgenesdfMCL <- DivOldSNPsgenesdf %>% filter(sigM.CL == 1)
+CvLM <- unique(DivOldSNPsgenesdfMCL$gene_id)
+DivOldSNPsgenesdfunionCL <- union(DivOldSNPsgenesdfFCL,DivOldSNPsgenesdfMCL)
+CvLU <- unique(DivOldSNPsgenesdfunionCL$gene_id)
+
+CvG <- unique(DivOldSNPsgenesdfCG$gene_id)
+head(CvG)
+CvL <- unique(DivOldSNPsgenesdfCL$gene_id)
+head(CvL)
+str(mysets)
+
+CvG <- enricher(gene = CvG, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(CvG,20)
+       
+CvL <- enricher(gene = CvL, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
+head(CvL,20)
+
+```
+
+
+## Session information
+
+For reproducibility.
+
+```{r,sessioninfo}
+sessionInfo()
+```

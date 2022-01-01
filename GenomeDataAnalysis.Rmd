@@ -340,7 +340,6 @@ mysets <- lapply(gos,function(x) { unique(godf[which(x == godf[,"GO term accessi
 mynames <- sapply(gos,function(x) { unname(godf[head(which(x == godf[,"GO term accession"] ),1),"GO term name"] ) } )
 mynames <- paste(gos,mynames)
 names(mysets) <- mynames
-head(mysets)
 
 ```
 
@@ -348,11 +347,8 @@ head(mysets)
 
 ```{r, Perform over representation analysis}
 
-head(mysets)
 mysetsdf <- melt(mysets)
-head(mysetsdf)
 mysetsdf <-mysetsdf[,c(2,1)]
-head(mysetsdf)
 head(DivOldSNPsgenesdf)
 
 DivOldSNPsgenesdfFCG <- DivOldSNPsgenesdf %>% filter(sigF.CG == 1)
@@ -369,17 +365,24 @@ CvLM <- unique(DivOldSNPsgenesdfMCL$gene_id)
 DivOldSNPsgenesdfunionCL <- union(DivOldSNPsgenesdfFCL,DivOldSNPsgenesdfMCL)
 CvLU <- unique(DivOldSNPsgenesdfunionCL$gene_id)
 
-CvG <- unique(DivOldSNPsgenesdfCG$gene_id)
-head(CvG)
-CvL <- unique(DivOldSNPsgenesdfCL$gene_id)
-head(CvL)
-str(mysets)
-
-CvG <- enricher(gene = CvG, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
-head(CvG,20)
-       
-CvL <- enricher(gene = CvL, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 1, qvalueCutoff = 1)
-head(CvL,20)
+#Over representation analysis of females in the clear versus green analysis
+CvGF <- enricher(gene = CvGF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
+head(CvGF,20)
+#Over representation analysis of males in the clear versus green analysis
+CvGM <- enricher(gene = CvGM, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
+head(CvGM,20)
+#Over representation analysis of both males and females in the clear versus green analysis
+CvGU <- enricher(gene = CvGU, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
+head(CvGU,20)
+#Over representation analysis of females in the clear versus lilac analysis       
+CvLF <- enricher(gene = CvLF, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
+head(CvLF,20)
+#Over representation analysis of males in the clear versus lilac analysis 
+CvLM <- enricher(gene = CvLM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
+head(CvLM,20)
+#Over representation analysis of both males and females in the clear versus lilac analysis 
+CvLU <- enricher(gene = CvLU, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
+head(CvLU,20)
 
 ```
 

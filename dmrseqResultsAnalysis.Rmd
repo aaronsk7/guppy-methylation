@@ -13,18 +13,22 @@ theme: cosmo
 
 This code is available at https://github.com/aaronsk7/guppy-methylation
 
-https://cran.r-project.org/web/packages/RCircos/vignettes/Using_RCircos.pdf
-
 ## dmrs before annotation
 
-```{r, Load in dmrs and packages}
+```{r, Load in packages}
 
 library(GenomicFeatures)
 library(BiocManager)
 library(RCircos)
 library(dplyr)
 library(data.table)
+library(kableExtra)
+library(knitr)
 
+```
+
+
+```{r, Load in dmrs}
 dmrseqCvG <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqCvG.rds")
 dmrseqCvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqCvL.rds")
 dmrseqGvL <- readRDS("/mnt/data/aaron/projects/guppy-methylation/dmrseqrds/dmrseqGvL.rds")
@@ -32,19 +36,41 @@ dmrseqCvG
 head(dmrseqCvL)
 head(dmrseqGvL)
 CvGdmrs <- as.data.frame(dmrseqCvG,row.names = 1:nrow(as.data.frame(ranges(dmrseqCvG))))
-head(CvGdmrs,10)
+CvGdmrs <- dplyr::select(CvGdmrs,seqnames,width,L,beta,pval,qval)
+colnames(CvGdmrs) <- c("location","width","L","beta","pvalue","qvalue")
+CvGdmrs <- head(CvGdmrs,10)
+CvGdmrs
+LightComp <- c('CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG')
+CvGdmrs <- cbind(LightComp,CvGdmrs)
+saveRDS(object=CvGdmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvGpreanodmrs.rds")
+
 CvLdmrs <- as.data.frame(dmrseqCvL,row.names = 1:nrow(as.data.frame(ranges(dmrseqCvL))))
-head(CvLdmrs,10)
+CvLdmrs <- dplyr::select(CvLdmrs,seqnames,width,L,beta,pval,qval)
+colnames(CvLdmrs) <- c("location","width","L","beta","pvalue","qvalue")
+CvLdmrs <- head(CvLdmrs,10)
+LightComp <- c('CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL')
+CvLdmrs <- cbind(LightComp,CvLdmrs)
+saveRDS(object=CvLdmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvLpreanodmrs.rds")
+
 GvLdmrs <- as.data.frame(dmrseqGvL,row.names = 1:nrow(as.data.frame(ranges(dmrseqGvL))))
-head(GvLdmrs,10)
+GvLdmrs <- dplyr::select(GvLdmrs,seqnames,width,L,beta,pval,qval)
+colnames(GvLdmrs) <- c("location","width","L","beta","pvalue","qvalue")
+GvLdmrs <-head(GvLdmrs,10)
+LightComp <- c('GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL')
+GvLdmrs <- cbind(LightComp,GvLdmrs)
+saveRDS(object=GvLdmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/GvLpreanodmrs.rds")
 
-
+LightComp <- c('CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL')
+preanodmrs <- union(CvGdmrs,CvLdmrs)
+preanodmrs <- union(preanodmrs,GvLdmrs)
+preanodmrs <- cbind(LightComp,preanodmrs)
+saveRDS(object=preanodmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/preanodmrs.rds")
 
 ```
 
 
 
-```{r, Load in genes and CpG islands }
+```{r, Load in genes promoter regions and CpG islands }
 
 gtf <- rtracklayer::import("/mnt/data/aaron/projects/guppy-methylation/Poecilia_reticulata.Guppy_female_1.0_MT.103.gtf")
 head(gtf)
@@ -95,7 +121,8 @@ CvGgenesdf <- cbind(CvGgenesdf,mygenesoldf1[c("gene_id","gene_biotype","gene_nam
 CvGgenesdf$seqnames <- as.character(CvGgenesdf$seqnames)
 head(CvGgenesdf)
 CvGgeneschrdf <- CvGgenesdf[grep("LG",CvGgenesdf$seqnames),]
-head(CvGgeneschrdf,20)
+CvGgeneschrdf <- dplyr::select(CvGgeneschrdf,seqnames,start,end,width,L,beta,stat,pval,qval,gene_id,gene_name)
+head(CvGgeneschrdf,10)
 rm(CvGgenes)
 rm(CvGgenesdf)
 
@@ -116,6 +143,7 @@ head(mygenesoldf2)
 CvLgenesdf <- cbind(CvLgenesdf,mygenesoldf2[c("gene_id","gene_biotype","gene_name")])
 CvLgenesdf$seqnames <- as.character(CvLgenesdf$seqnames)
 CvLgeneschrdf <- CvLgenesdf[grep("LG",CvLgenesdf$seqnames),]
+CvLgeneschrdf <- dplyr::select(CvLgeneschrdf,seqnames,start,end,width,L,beta,stat,pval,qval,gene_id,gene_name)
 head(CvLgeneschrdf)
 rm(CvLgenes)
 rm(CvLgenesdf)
@@ -137,9 +165,55 @@ head(mygenesoldf3)
 GvLgenesdf <- cbind(GvLgenesdf,mygenesoldf3[c("gene_id","gene_biotype","gene_name")])
 GvLgenesdf$seqnames <- as.character(GvLgenesdf$seqnames)
 GvLgeneschrdf <- GvLgenesdf[grep("LG",GvLgenesdf$seqnames),]
+GvLgeneschrdf <- dplyr::select(GvLgeneschrdf,seqnames,start,end,width,L,beta,stat,pval,qval,gene_id,gene_name)
 head(GvLgeneschrdf)
 rm(GvLgenes)
 rm(GvLgenesdf)
+
+```
+
+```{r, gene annotations table CvG}
+
+CvGgeneschrdf
+CvGgeneschrdf <- head(CvGgeneschrdf,10)
+CvGgeneschrdf <- dplyr::select(CvGgeneschrdf,seqnames,width,L,beta,pval,qval,gene_name)
+CvGgeneschrdf
+colnames(CvGgeneschrdf) <- c("location","width","L", "beta","pvalue","qvalue","gene_name")
+LightComp <- c('CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG')
+LightComp
+CvGgeneanodmrs <- cbind(LightComp,CvGgeneschrdf)
+CvGgeneanodmrs
+saveRDS(object=CvGgeneanodmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvGgeneanodmrs.rds")
+
+```
+
+```{r, gene annotations table CvL}
+
+CvLgeneschrdf
+CvLgeneschrdf <- head(CvLgeneschrdf,10)
+CvLgeneschrdf <- dplyr::select(CvLgeneschrdf,seqnames,width,L,beta,pval,qval,gene_name)
+CvLgeneschrdf
+colnames(CvLgeneschrdf) <- c("location","width","L", "beta","pvalue","qvalue","gene_name")
+LightComp <- c('CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL')
+LightComp
+CvLgeneanodmrs <- cbind(LightComp,CvLgeneschrdf)
+CvLgeneanodmrs
+saveRDS(object=CvLgeneanodmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvLgeneanodmrs.rds")
+
+```
+
+```{r, gene annotations table GvL}
+
+GvLgeneschrdf
+GvLgeneschrdf <- head(GvLgeneschrdf,10)
+GvLgeneschrdf <- dplyr::select(GvLgeneschrdf,seqnames,width,L,beta,pval,qval,gene_name)
+colnames(GvLgeneschrdf) <- c("location","width","L", "beta","pvalue","qvalue","gene_name")
+GvLgeneschrdf
+LightComp <- c('GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL')
+LightComp
+GvLgeneanodmrs <- cbind(LightComp,GvLgeneschrdf)
+GvLgeneanodmrs
+saveRDS(object=GvLgeneanodmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/GvLgeneanodmrs.rds")
 
 ```
 
@@ -243,8 +317,9 @@ head(CvGpromotersdf)
 CvGpromoterschrdf <- CvGpromotersdf[grep("LG",CvGpromotersdf$seqnames),]
 head(CvGpromoterschrdf)
 CvGpromoterschrdf <- CvGpromoterschrdf[order(CvGpromoterschrdf[,11]), ]
-colnames(CvGpromoterschrdf) <- c("seqnames","start","end","width","strand","L","area", "beta","stat", "pvalue","qvalue","index.start", "index.width","L", "gene_id","transcript_id", "gene_name")
-head(CvGpromoterschrdf,20)
+colnames(CvGpromoterschrdf) <- c("location","start","end","width","strand","L","area", "beta","stat", "pvalue","qvalue","index.start", "index.width","L2", "gene_id","transcript_id", "gene_name")
+CvGpromoterschrdf <- dplyr::select(CvGpromoterschrdf,location,width,beta,pvalue,qvalue,gene_name)
+head(CvGpromoterschrdf,10)
 rm(CvGpromoters)
 rm(CvGpromotersdf)
 
@@ -270,8 +345,9 @@ head(CvLpromotersdf)
 CvLpromoterschrdf <- CvLpromotersdf[grep("LG",CvLpromotersdf$seqnames),]
 head(CvLpromoterschrdf)
 CvLpromoterschrdf <- CvLpromoterschrdf[order(CvLpromoterschrdf[,11]), ]
-colnames(CvGpromoterschrdf) <- c("seqnames","start","end","width","strand","L","area", "beta","stat", "pvalue","qvalue","index.start", "index.width","L", "gene_id","transcript_id", "gene_name")
-head(CvLpromoterschrdf,20)
+colnames(CvLpromoterschrdf) <- c("location","start","end","width","strand","L","area", "beta","stat", "pvalue","qvalue","index.start", "index.width","L2", "gene_id","transcript_id", "gene_name")
+CvLpromoterschrdf <- dplyr::select(CvLpromoterschrdf,location,width,beta,pvalue,qvalue,gene_name)
+head(CvLpromoterschrdf,10)
 rm(CvLpromoters)
 rm(CvLpromotersdf)
 
@@ -297,13 +373,44 @@ head(GvLpromotersdf)
 GvLpromoterschrdf <- GvLpromotersdf[grep("LG",GvLpromotersdf$seqnames),]
 head(GvLpromoterschrdf)
 GvLpromoterschrdf <- GvLpromoterschrdf[order(GvLpromoterschrdf[,11]), ]
-colnames(CvGpromoterschrdf) <- c("seqnames","start","end","width","strand","L","area", "beta","stat", "pvalue","qvalue","index.start", "index.width","L", "gene_id","transcript_id", "gene_name")
+colnames(GvLpromoterschrdf) <- c("location","start","end","width","strand","L","area", "beta","stat", "pvalue","qvalue","index.start", "index.width","L2", "gene_id","transcript_id", "gene_name")
+GvLpromoterschrdf <- dplyr::select(GvLpromoterschrdf,location,width,beta,pvalue,qvalue,gene_name)
 head(GvLpromoterschrdf,20)
 rm(GvLpromoters)
 rm(GvLpromotersdf)
 
 ```
 
+```{r, table 3}
+
+CvGpromoterschrdf
+CvGpromoterschrdf <- head(CvGpromoterschrdf,10)
+CvGpromoterschrdf
+CvLpromoterschrdf <- head(CvLpromoterschrdf,10)
+CvLpromoterschrdf
+GvLpromoterschrdf <-head(GvLpromoterschrdf,10)
+GvLpromoterschrdf
+LightComp <- c('CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG','CvG')
+LightComp
+CvGanodmrs <- cbind(LightComp,CvGpromoterschrdf)
+saveRDS(object=CvGanodmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvGanodmrs.rds")
+```
+
+
+```{r, table 4}
+
+LightComp <- c('CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL','CvL')
+CvLanodmrs <- cbind(LightComp,CvLpromoterschrdf)
+saveRDS(object=CvLanodmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/CvLanodmrs.rds")
+```
+
+
+```{r, table 5}
+
+LightComp <- c('GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL','GvL')
+GvLanodmrs <- cbind(LightComp,GvLpromoterschrdf)
+saveRDS(object=GvLanodmrs,file="/mnt/data/aaron/projects/guppy-methylation/Thesis/figures/Tables/GvLanodmrs.rds")
+```
 
 ## Create RCircos plot for CvG comparison
 
@@ -600,7 +707,7 @@ dmrplots <- function(dmr){
   dmrseqname <- dmr[1]
   dmrstart <- dmr[2]
   dmrend <- dmr[3]
-  gene_name <- dmr[17]
+  gene_name <- dmr[11]
   
   Foundationsub <- Foundation[which( Foundation$V1==dmrseqname & Foundation$V2>dmrstart & Foundation$V3<dmrend ),4]
   ClearR1sub <- ClearR1[which( ClearR1$V1==dmrseqname & ClearR1$V2>dmrstart & ClearR1$V3<dmrend ),4]
@@ -637,7 +744,7 @@ dmrplots <- function(dmr){
 
 # with lapply
 lapply(X=1:10, function(i) {
-  dmr <- CvGgeneschrdf[i,,drop=TRUE]
+  dmr <- CvGpromoterschrdf[i,,drop=TRUE]
   dmrplots(dmr)
 })
 
@@ -693,7 +800,7 @@ dmrplots <- function(dmr){
 
 # with lapply
 lapply(X=1:10, function(i) {
-  dmr <- CvLgeneschrdf[i,,drop=TRUE]
+  dmr <- CvLpromoterschrdf[i,,drop=TRUE]
   dmrplots(dmr)
 })
 
@@ -750,7 +857,7 @@ dmrplots <- function(dmr){
 
 # with lapply
 lapply(X=1:10, function(i) {
-  dmr <- GvLgeneschrdf[i,,drop=TRUE]
+  dmr <- GvLpromoterschrdf[i,,drop=TRUE]
   dmrplots(dmr)
 })
 

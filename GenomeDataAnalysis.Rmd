@@ -409,28 +409,26 @@ GrnM <- unique(GeneEvOldSNPsMGrn$GeneID)
 GeneEvOldSNPsMLil <- GeneEvOldSNPs %>% filter(M.FLlc == 1)
 LilM <- unique(GeneEvOldSNPsMLil$GeneID)
 
-#Over representation analysis of females in the clear versus green analysis
+#Over representation analysis of females in the clear versus foundation analysis
 ClF <- enricher(gene = ClF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
 head(ClF,20)
-#Over representation analysis of males in the clear versus green analysis
+#Over representation analysis of females in the green versus foundation analysis
 GrnF <- enricher(gene = GrnF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
 head(GrnF,20)
-#Over representation analysis of both males and females in the clear versus green analysis
+#Over representation analysis of females in the lilac versus foundation analysis
 LilF <- enricher(gene = LilF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
 head(LilF,20)
-#Over representation analysis of females in the clear versus lilac analysis       
+#Over representation analysis of males in the clear versus foundation analysis     
 ClM <- enricher(gene = ClM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
 head(ClM,20)
-#Over representation analysis of males in the clear versus lilac analysis 
+#Over representation analysis of males in the green versus foundation analysis     
 GrnM <- enricher(gene = GrnM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
 head(GrnM,20)
-#Over representation analysis of both males and females in the clear versus lilac analysis 
+#Over representation analysis of males in the lilac versus foundation analysis     
 LilM <- enricher(gene = LilM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
 head(LilM,20)
 
 ```
-
-DivOldSNPsgenesdf1 <- DivOldSNPsgenesdf %>% filter(sigF.CG == 1)
 
 ## Session information
 

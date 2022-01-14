@@ -358,7 +358,6 @@ DivOldSNPsgenesdfMCG <- DivOldSNPsgenesdf %>% filter(sigM.CG == 1)
 CvGM <- unique(DivOldSNPsgenesdfMCG$gene_id)
 DivOldSNPsgenesdfunionCG <- union(DivOldSNPsgenesdfFCG,DivOldSNPsgenesdfMCG)
 CvGU <- unique(DivOldSNPsgenesdfunionCG$gene_id)
-CvGU
 
 DivOldSNPsgenesdfFCL <- DivOldSNPsgenesdf %>% filter(sigF.CL == 1)
 CvLF <- unique(DivOldSNPsgenesdfFCL$gene_id)

@@ -351,7 +351,6 @@ names(mysets) <- mynames
 
 mysetsdf <- melt(mysets)
 mysetsdf <-mysetsdf[,c(2,1)]
-head(DivOldSNPsgenesdf)
 
 DivOldSNPsgenesdfFCG <- DivOldSNPsgenesdf %>% filter(sigF.CG == 1)
 CvGF <- unique(DivOldSNPsgenesdfFCG$gene_id)
@@ -395,21 +394,20 @@ head(CvLU,20)
 
 mysetsdf <- melt(mysets)
 mysetsdf <-mysetsdf[,c(2,1)]
-head(GeneEvOldSNPs)
-  
+
 GeneEvOldSNPsFCl <- GeneEvOldSNPs %>% filter(F.FClr == 1)
-ClF <- unique(GeneEvOldSNPsFCl$gene_id)
+ClF <- unique(GeneEvOldSNPsFCl$GeneID)
 GeneEvOldSNPsFGrn <- GeneEvOldSNPs %>% filter(F.FGrn == 1)
-GrnF <- unique(GeneEvOldSNPsFGrn$gene_id)
+GrnF <- unique(GeneEvOldSNPsFGrn$GeneID)
 GeneEvOldSNPsFLil <- GeneEvOldSNPs %>% filter(F.FLlc == 1)
-LilF <- unique(GeneEvOldSNPsFLil$gene_id)
+LilF <- unique(GeneEvOldSNPsFLil$GeneID)
 
 GeneEvOldSNPsMCl <- GeneEvOldSNPs %>% filter(M.FClr == 1)
-ClM <- unique(GeneEvOldSNPsMCl$gene_id)
+ClM <- unique(GeneEvOldSNPsMCl$GeneID)
 GeneEvOldSNPsMGrn <- GeneEvOldSNPs %>% filter(M.FGrn == 1)
-GrnM <- unique(GeneEvOldSNPsMGrn$gene_id)
+GrnM <- unique(GeneEvOldSNPsMGrn$GeneID)
 GeneEvOldSNPsMLil <- GeneEvOldSNPs %>% filter(M.FLlc == 1)
-LilM <- unique(GeneEvOldSNPsMLil$gene_id)
+LilM <- unique(GeneEvOldSNPsMLil$GeneID)
 
 #Over representation analysis of females in the clear versus green analysis
 ClF <- enricher(gene = ClF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)

@@ -16,6 +16,7 @@ library(BiocManager)
 library(dplyr)
 library(clusterProfiler)
 library(reshape2)
+library(kableExtra)
 
 ```
 
@@ -41,6 +42,7 @@ head(GeneDivMingSNPs)
 head(GeneDivOldSNPs)
 head(GeneDivReseqSNPs)
 head(GeneEvOldSNPs)
+head(GeneEvMingSNPs)
 head(DivOldSNPs)
 head(DivMingSNPs)
 head(EvOldSNPs)
@@ -138,6 +140,7 @@ Methyldata10methdif1 <- Methyldata %>% filter(meth.diff > 10)
 Methyldata10methdif2 <- Methyldata %>% filter(meth.diff < -10)
 Methyldata10methdif <- union(Methyldata10methdif1 , Methyldata10methdif2)
 head(Methyldata10methdif)
+#filter for meth.diff of greater than 15 or less than -15
 Methyldata15methdif1 <- Methyldata %>% filter(meth.diff > 15)
 Methyldata15methdif2 <- Methyldata %>% filter(meth.diff < -15)
 Methyldata15methdif <- union(Methyldata15methdif1 , Methyldata15methdif2)
@@ -151,7 +154,6 @@ head(Methyldata15methdif)
 intgenes <- intersect(Methyldata$gene_name, DivOldSNPsgenesdfF$gene_name)
 head(intgenes)
 intgenesmethdif10 <- intersect(Methyldata10methdif$gene_name, DivOldSNPsgenesdfF$gene_name)
-intgenesmethdif10
 intgenesmethdif15 <- intersect(Methyldata15methdif$gene_name, DivOldSNPsgenesdfF$gene_name)
 intgenesmethdif15
 #filter dataframes by crossover gene names
@@ -220,9 +222,13 @@ gpc5bmeth <- methylcrossdata10[grep("gpc5b",methylcrossdata10$gene_name),]
 gpc5bgenCvG <- geneticcrossdata10CvG[grep("gpc5b",geneticcrossdata10CvG$gene_name),]
 gpc5bgenCvL <- geneticcrossdata10CvL[grep("gpc5b",geneticcrossdata10CvL$gene_name),]
 #Significantly methylated tiles
-gpc5bmeth
+gpc5bmeth %>%
+  kbl(caption = "Significantly methylated tiles for gpc5b gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Significant SNPs in CvL comparison
-gpc5bgenCvL
+gpc5bgenCvL %>%
+  kbl(caption = "Significant SNPs in CvL comparison for gpc5b gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
@@ -234,9 +240,13 @@ TCF7L1meth <- methylcrossdata10[grep("TCF7L1",methylcrossdata10$gene_name),]
 TCF7L1genCvG <- geneticcrossdata10CvG[grep("TCF7L1",geneticcrossdata10CvG$gene_name),]
 TCF7L1genCvL <- geneticcrossdata10CvL[grep("TCF7L1",geneticcrossdata10CvL$gene_name),]
 #Significantly methylated tiles
-TCF7L1meth
+TCF7L1meth %>%
+  kbl(caption = "Significant SNPs in CvL comparison for TCF7L1 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Significant SNPs in CvG comparison
-TCF7L1genCvG
+TCF7L1genCvG %>%
+  kbl(caption = "Significant SNPs in CvL comparison for TCF7L1 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
@@ -248,9 +258,13 @@ pan2meth <- methylcrossdata10[grep("pan2",methylcrossdata10$gene_name),]
 pan2genCvG <- geneticcrossdata10CvG[grep("pan2",geneticcrossdata10CvG$gene_name),]
 pan2genCvL <- geneticcrossdata10CvL[grep("pan2",geneticcrossdata10CvL$gene_name),]
 #Significantly methylated tiles
-pan2meth
+pan2meth %>%
+  kbl(caption = "Significant SNPs in CvL comparison for pan2 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Significant SNPs in CvL comparison
-pan2genCvL
+pan2genCvL %>%
+  kbl(caption = "Significant SNPs in CvL comparison for pan2 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
@@ -262,9 +276,14 @@ NXPE3meth <- methylcrossdata10[grep("NXPE3",methylcrossdata10$gene_name),]
 NXPE3genCvG <- geneticcrossdata10CvG[grep("NXPE3",geneticcrossdata10CvG$gene_name),]
 NXPE3genCvL <- geneticcrossdata10CvL[grep("NXPE3",geneticcrossdata10CvL$gene_name),]
 #Significantly methylated tiles
-NXPE3meth
+NXPE3meth %>%
+  kbl(caption = "Significant SNPs in CvL comparison for NXPE3 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Significant SNPs in CvG comparison
-NXPE3genCvG
+NXPE3genCvG %>%
+  kbl(caption = "Significant SNPs in CvL comparison for NXPE3 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
 
 ```
 
@@ -276,9 +295,13 @@ gabrr2bmeth <- methylcrossdata10[grep("gabrr2b",methylcrossdata10$gene_name),]
 gabrr2bgenCvG <- geneticcrossdata10CvG[grep("gabrr2b",geneticcrossdata10CvG$gene_name),]
 gabrr2bgenCvL <- geneticcrossdata10CvL[grep("gabrr2b",geneticcrossdata10CvL$gene_name),]
 #Significantly methylated tiles
-gabrr2bmeth
+gabrr2bmeth %>%
+  kbl(caption = "Significant SNPs in CvL comparison for gabrr2b gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Significant SNPs in CvG comparison
-gabrr2bgenCvG
+gabrr2bgenCvG %>%
+  kbl(caption = "Significant SNPs in CvL comparison for gabrr2b gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
@@ -290,11 +313,17 @@ schip1meth <- methylcrossdata10[grep("schip1",methylcrossdata10$gene_name),]
 schip1genCvG <- geneticcrossdata10CvG[grep("schip1",geneticcrossdata10CvG$gene_name),]
 schip1genCvL <- geneticcrossdata10CvL[grep("schip1",geneticcrossdata10CvL$gene_name),]
 #Significantly methylated tiles
-schip1meth
+schip1meth %>%
+  kbl(caption = "Significant SNPs in CvL comparison for schip1 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Significant SNPs in CvG comparison
-schip1genCvG
+schip1genCvG %>%
+  kbl(caption = "Significant SNPs in CvL comparison for schip1 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Significant SNPs in CvL comparison
-schip1genCvL
+schip1genCvL %>%
+  kbl(caption = "Significant SNPs in CvL comparison for schip1 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
@@ -306,9 +335,14 @@ cdc42bpabmeth <- methylcrossdata10[grep("cdc42bpab",methylcrossdata10$gene_name)
 cdc42bpabgenCvG <- geneticcrossdata10CvG[grep("cdc42bpab",geneticcrossdata10CvG$gene_name),]
 cdc42bpabgenCvL <- geneticcrossdata10CvL[grep("cdc42bpab",geneticcrossdata10CvL$gene_name),]
 #Significantly methylated tiles
-cdc42bpabmeth
+cdc42bpabmeth %>%
+  kbl(caption = "Significant SNPs in CvL comparison for cdc42bpab gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Significant SNPs in CvL comparison
-cdc42bpabgenCvL
+cdc42bpabgenCvL %>%
+  kbl(caption = "Significant SNPs in CvL comparison for cdc42bpab gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
 
 ```
 
@@ -320,9 +354,15 @@ aebp2meth <- methylcrossdata10[grep("aebp2",methylcrossdata10$gene_name),]
 aebp2genCvG <- geneticcrossdata10CvG[grep("aebp2",geneticcrossdata10CvG$gene_name),]
 aebp2genCvL <- geneticcrossdata10CvL[grep("aebp2",geneticcrossdata10CvL$gene_name),]
 #Significantly methylated tiles
+aebp2meth %>%
+  kbl(caption = "Significant SNPs in CvL comparison for aebp2 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 aebp2meth
 #Significant SNPs in CvG comparison
-aebp2genCvG
+aebp2genCvG %>%
+  kbl(caption = "Significant SNPs in CvL comparison for aebp2 gene") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
 
 ```
 
@@ -368,22 +408,53 @@ CvLU <- unique(DivOldSNPsgenesdfunionCL$gene_id)
 
 #Over representation analysis of females in the clear versus green analysis
 CvGF <- enricher(gene = CvGF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(CvGF,20)
+CvGF20 <- head(CvGF,20)
+rownames(CvGF20) <- NULL
+CvGF20 <- dplyr::select(CvGF20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+CvGF20 %>%
+  kbl(caption = "Significantly enriched pathways in CvG female comparison", digits = 10) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
 #Over representation analysis of males in the clear versus green analysis
 CvGM <- enricher(gene = CvGM, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(CvGM,20)
+CvGM20 <- head(CvGM,20)
+rownames(CvGM20) <- NULL
+CvGM20 <- dplyr::select(CvGM20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+CvGM20 %>%
+  kbl(caption = "Significantly enriched pathways in CvG male comparison", digits = 10) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of both males and females in the clear versus green analysis
 CvGU <- enricher(gene = CvGU, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(CvGU,20)
+CvGU20 <- head(CvGU,20)
+rownames(CvGU20) <- NULL
+CvGU20 <- dplyr::select(CvGU20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+CvGU20 %>%
+  kbl(caption = "Significantly enriched pathways in CvG male and female combined comparison", digits = 10) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of females in the clear versus lilac analysis       
 CvLF <- enricher(gene = CvLF, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(CvLF,20)
+CvLF20 <- head(CvLF,20)
+rownames(CvLF20) <- NULL
+CvLF20 <- dplyr::select(CvLF20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+CvLF20 %>%
+  kbl(caption = "Significantly enriched pathways in CvL female comparison", digits = 7) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of males in the clear versus lilac analysis 
 CvLM <- enricher(gene = CvLM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(CvLM,20)
+CvLM20 <- head(CvLM,20)
+rownames(CvLM20) <- NULL
+CvLM20 <- dplyr::select(CvLM20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+CvLM20 %>%
+  kbl(caption = "Significantly enriched pathways in CvL male comparison", digits = 7) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of both males and females in the clear versus lilac analysis 
 CvLU <- enricher(gene = CvLU, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(CvLU,20)
+CvLU20 <- head(CvLU,20)
+rownames(CvLU20) <- NULL
+CvLU20 <- dplyr::select(CvLU20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+CvLU20 %>%
+  kbl(caption = "Significantly enriched pathways in CvL male and female combined comparison", digits = 7) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
@@ -396,6 +467,7 @@ mysetsdf <-mysetsdf[,c(2,1)]
 
 GeneEvOldSNPsFCl <- GeneEvOldSNPs %>% filter(F.FClr == 1)
 ClF <- unique(GeneEvOldSNPsFCl$GeneID)
+
 GeneEvOldSNPsFGrn <- GeneEvOldSNPs %>% filter(F.FGrn == 1)
 GrnF <- unique(GeneEvOldSNPsFGrn$GeneID)
 GeneEvOldSNPsFLil <- GeneEvOldSNPs %>% filter(F.FLlc == 1)
@@ -405,27 +477,60 @@ GeneEvOldSNPsMCl <- GeneEvOldSNPs %>% filter(M.FClr == 1)
 ClM <- unique(GeneEvOldSNPsMCl$GeneID)
 GeneEvOldSNPsMGrn <- GeneEvOldSNPs %>% filter(M.FGrn == 1)
 GrnM <- unique(GeneEvOldSNPsMGrn$GeneID)
+
 GeneEvOldSNPsMLil <- GeneEvOldSNPs %>% filter(M.FLlc == 1)
 LilM <- unique(GeneEvOldSNPsMLil$GeneID)
 
+
 #Over representation analysis of females in the clear versus foundation analysis
 ClF <- enricher(gene = ClF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(ClF,20)
+ClF20 <- head(ClF,20)
+rownames(ClF20) <- NULL
+ClF20 <- dplyr::select(ClF20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+ClF20 %>%
+  kbl(caption = "Significantly enriched pathways in clear versus foundation female comparison", digits = 8) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of females in the green versus foundation analysis
 GrnF <- enricher(gene = GrnF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(GrnF,20)
+GrnF20 <- head(GrnF,20)
+rownames(GrnF20) <- NULL
+GrnF20 <- dplyr::select(GrnF20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+GrnF20 %>%
+  kbl(caption = "Significantly enriched pathways in green versus foundation female comparison", digits = 7) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of females in the lilac versus foundation analysis
 LilF <- enricher(gene = LilF, minGSSize = 5, maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(LilF,20)
+LilF20 <- head(LilF,20)
+rownames(LilF20) <- NULL
+LilF20 <- dplyr::select(LilF20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+LilF20 %>%
+  kbl(caption = "Significantly enriched pathways in lilac versus foundation female comparison", digits = 7) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of males in the clear versus foundation analysis     
 ClM <- enricher(gene = ClM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(ClM,20)
+ClM20 <- head(ClM,20)
+rownames(ClM20) <- NULL
+ClM20 <- dplyr::select(ClM20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+ClM20 %>%
+  kbl(caption = "Significantly enriched pathways in clear versus foundation male comparison", digits = 7) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of males in the green versus foundation analysis     
 GrnM <- enricher(gene = GrnM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(GrnM,20)
+GrnM20 <- head(GrnM,20)
+rownames(GrnM20) <- NULL
+GrnM20 <- dplyr::select(GrnM20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+GrnM20 %>%
+  kbl(caption = "Significantly enriched pathways in green versus foundation male comparison", digits = 7) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 #Over representation analysis of males in the lilac versus foundation analysis     
-LilM <- enricher(gene = LilM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.25, qvalueCutoff = 0.2)
-head(LilM,20)
+LilM <- enricher(gene = LilM, minGSSize = 5,  maxGSSize = 5000, TERM2GENE = mysetsdf, pvalueCutoff = 0.5, qvalueCutoff = 0.5)
+LilM
+LilM20 <- head(LilM,20)
+rownames(LilM20) <- NULL
+LilM20 <- dplyr::select(LilM20, Description, GeneRatio, BgRatio, pvalue, p.adjust, qvalue)
+LilM20 %>%
+  kbl(caption = "Significantly enriched pathways in lilac versus foundation male comparison", digits = 7) %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 
 ```
 
